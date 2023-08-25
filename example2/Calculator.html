@@ -4,7 +4,7 @@
         Calculator
         <style>
             .calc {
-                background-color:orange;
+                background-color:rgb(218, 191, 141);
             }
             .pad {
                 display: grid;
@@ -23,20 +23,19 @@
                 grid-template-rows: 1fr 1fr 1fr 1fr 1fr;
                 margin: 0px 0px 5px 5px;
             }
+            .container3 {
+              display: grid;
+              grid-gap: 5px;
+              grid-template-rows: 1fr 1fr;
+              margin: 0px 0px 5px 5px;
+            }
             .item{
-              font-size: larger;
               color: #fff;
-              border-radius: 5px;
-              #background-color: #2196f3;
-              border: 1px;
               height: 50px;
               margin:5px;
-
-              /* 박스 안에 텍스트는 flex를 이용해 가운데 정렬 */
               display: flex;
               align-items: center;
               justify-content: center;
-
             }
             .myButton {
                 width:100%;
@@ -45,23 +44,30 @@
                 padding:0;
             }
             .inputText {
-                width: 90%;
-                height: 40px;
-                margin: 10px;
+                border-radius: 5px;
+                border: 1px;
+                height: 50px;
+                margin: 5px;
+                font-size: 40px;
                 resize: none;
             }
             .resultText {
-                width: 90%;
-                height:40px;
-                margin: 10px;
+                border-radius: 5px;
+                border: 1px;
+                height: 50px;
+                margin: 10px 5px 5px 5px;
+                text-align: center;
+                font-size: 40px;
                 resize: none;
             }
         </style>
     </head>
     <body>
         <div class="calc">
-            <textarea class="resultText" id="resultText" value="" readonly></textarea>
-            <textarea class="inputText" id="inputText" value="" ></textarea>
+            <div class="container3">
+              <textarea class="resultText" id="resultText" value="" readonly></textarea>
+              <textarea class="inputText" id="inputText" value="" ></textarea>
+            </div>
             <div class="pad">
                 <div class="container1" background=blue>
                     <div class="item"></div>
@@ -89,6 +95,6 @@
                 </div>
             </div>
         </div>
-        <script src="test.js"></script>
+        <script src="Calculator.js"></script>
     </body>
 </html>
