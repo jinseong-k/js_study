@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
     <head>
-        Calculator
+        <title>Calculator</title>
         <style>
             .calc {
                 background-color:rgb(218, 191, 141);
@@ -63,28 +63,33 @@
         </style>
     </head>
     <body>
+        <!-- 1. JS로 생성하기 -->
         <div class="calc">
             <div class="container3">
               <textarea class="resultText" id="resultText" value="" readonly></textarea>
               <textarea class="inputText" id="inputText" value="" ></textarea>
+              <!-- 입력 받는 방법 -->
+              <!-- textarea, input(type="text") -->
+              <!-- textarea: 여러 줄 입력받고 싶을 때 -->
+              <!-- input(type="text"): 한 줄만. -->
             </div>
-            <div class="pad">
-                <div class="container1" background=blue>
+            <div class="pad" id="pad">
+                <div class="container1">
                     <div class="item"></div>
                     <div class="item"></div>
                     <div class="item"></div>
-                    <div class="item"><button class="myButton" id="button7" value=7>7</button></div>
-                    <div class="item"><button class="myButton" id="button8" value=8>8</button></div>
-                    <div class="item"><button class="myButton" id="button9" value=9>9</button></div>
-                    <div class="item"><button class="myButton" id="button4" value=4>4</button></div>
-                    <div class="item"><button class="myButton" id="button5" value=5>5</button></div>
-                    <div class="item"><button class="myButton" id="button6" value=6>6</button></div>
-                    <div class="item"><button class="myButton" id="button1" value=1>1</button></div>
-                    <div class="item"><button class="myButton" id="button2" value=2>2</button></div>
-                    <div class="item"><button class="myButton" id="button3" value=3>3</button></div>
-                    <div class="item"><button class="myButton" id="button." value=.>.</button></div>
-                    <div class="item"><button class="myButton" id="button0" value=0>0</button></div>
-                    <div class="item"><button class="myButton" id="button=" value==>=</button></div>
+                    <div class="item"><button class="myButton" id="button7" value="7">7</button></div>
+                    <div class="item"><button class="myButton" id="button8" value="8">8</button></div>
+                    <div class="item"><button class="myButton" id="button9" value="9">9</button></div>
+                    <div class="item"><button class="myButton" id="button4" value="4">4</button></div>
+                    <div class="item"><button class="myButton" id="button5" value="5">5</button></div>
+                    <div class="item"><button class="myButton" id="button6" value="6">6</button></div>
+                    <div class="item"><button class="myButton" id="button1" value="1">1</button></div>
+                    <div class="item"><button class="myButton" id="button2" value="2">2</button></div>
+                    <div class="item"><button class="myButton" id="button3" value="3">3</button></div>
+                    <div class="item"><button class="myButton" id="button." value=".">.</button></div>
+                    <div class="item"><button class="myButton" id="button0" value="0">0</button></div>
+                    <div class="item"><button class="myButton" id="button=" value="=">=</button></div>
                 </div>
                 <div class="container2" grid>
                     <div class="item"><button class="myButton" id="buttonClear">C</button></div>
