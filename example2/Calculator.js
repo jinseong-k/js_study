@@ -4,6 +4,7 @@ const OP_PAD_COUNT = 5;
 const NUM_PAD_CHAR = ['7', '8', '9', '4', '5', '6', '1', '2', '3', '.', '0', '='];
 const NUM_PAD_COUNT = 12;
 const EMPTY_PAD_COUNT = 3;
+const MAX_FORM_LEN = 1000;
 
 // 1. calculator error fix
 // 2. 일반 계산기처럼 동작하게 하기
@@ -15,62 +16,108 @@ class Calculator {
 
     }
 
-    _plusOp(form) {
-        let token = form.split('+');
-        return parseFloat(token[0]) + parseFloat(token[1]);
-    }
+    _getLeftOperand(form) {
+        const plusIndex = form.lastIndexOf('+');
+        const minusIndex = form.lastIndexOf('-');
+        const multiIndex = form.indexOf('*');
+        const divIndex = form.indexOf('/');
 
-    _minusOp(form) {
-        let token = form.split('-');
-        return parseFloat(token[0]) - parseFloat(token[1]);
-    }
-
-    _multiOp(form) {
-        let token = form.split('*');
-        return parseFloat(token[0]) * parseFloat(token[1]);
-    }
-
-    _divOp(form) {
-        let token = form.split('/');
-        return parseFloat(token[0]) / parseFloat(token[1]);
-    }
-
-    calculate(form, minusFlag) {
-        let resultValue;
-        let index;
-
-        if (form.includes('+')) {
-            index = form.indexOf('+');
-            return this.calculate(form.slice(0, index)) + this.calculate(form.slice(index+1));
-        } else if (form.includes('-')) {
-            index = form.indexOf('-');
-            return this.calculate(form.slice(0, index)) - (-1 * (this.calculate(form.slice(index+1))));
-        } else if (form.includes('*')) {
-            index = form.indexOf('*');
-            return this.calculate(form.slice(0, index)) * this.calculate(form.slice(index+1));
-        } else if (form.includes('/')) {
-            index = form.indexOf('/');
-            return this.calculate(form.slice(0, index)) / this.calculate(form.slice(index+1));
-        } else {
-            return parseFloat(form);
+        if (plusIndex === -1 && minusIndex === -1
+            && multiIndex === -1 && divIndex === -1) {
+            return form;
         }
+
+        const index = Math.max(plusIndex, minusIndex, multiIndex, divIndex);
+
+        return form.slice(index + 1);
+    }
+
+    _getRightOperand(form) {
+        let plusIndex = form.indexOf('+');
+        let minusIndex = form.indexOf('-');
+        let multiIndex = form.indexOf('*');
+        let divIndex = form.indexOf('/');
+
+        if (plusIndex === -1 && minusIndex === -1
+            && multiIndex === -1 && divIndex === -1) {
+            return form;
+        }
+
+        plusIndex = (plusIndex === -1) ? MAX_FORM_LEN : plusIndex;
+        minusIndex = (minusIndex === -1) ? MAX_FORM_LEN : minusIndex;
+        multiIndex = (multiIndex === -1) ? MAX_FORM_LEN : multiIndex;
+        divIndex = (divIndex === -1) ? MAX_FORM_LEN : divIndex;
+
+        const index = Math.min(plusIndex, minusIndex, multiIndex, divIndex);
+
+        return form.slice(0, index);
+    }
+
+    calculate(form) {
+        let index;
+        let calcResult;
+
+        let plusIndex = form.indexOf('+');
+        let minusIndex = form.indexOf('-');
+        let multiIndex = form.indexOf('*');
+        let divIndex = form.indexOf('/');
+
+        if (multiIndex !== -1) {
+            if (divIndex !== -1) {
+                if (multiIndex < divIndex) {
+                    index = multiIndex;
+                } else {
+                    index = divIndex;
+                }
+            } else {
+                index = multiIndex;
+            }
+        } else if (divIndex !== -1) {
+            index = divIndex;
+        } else if (plusIndex !== -1) {
+            if (minusIndex !== -1) {
+                if (plusIndex < minusIndex) {
+                    index = plusIndex;
+                } else {
+                    index = minusIndex;
+                }
+            } else {
+                index = plusIndex;
+            }
+        } else if (minusIndex !== -1) {
+            index = minusIndex;
+        } else {
+            return form;
+        }
+
+        let left = form.slice(0, index);
+        let right = form.slice(index + 1);
+
+        let leftOperand = this._getLeftOperand(left)
+        let rightOperand = this._getRightOperand(right);
+
+        switch (index) {
+            case multiIndex:
+                calcResult = parseFloat(leftOperand) * parseFloat(rightOperand);
+                break;
+            case divIndex:
+                calcResult = parseFloat(leftOperand) / parseFloat(rightOperand);
+                break;
+            case plusIndex:
+                calcResult = parseFloat(leftOperand) + parseFloat(rightOperand);
+                break;
+            case minusIndex:
+                calcResult = parseFloat(leftOperand) - parseFloat(rightOperand);
+                break;
+            default:
+                break;
+        }
+
+        let newForm = `${left.slice(0, -(leftOperand.length))}${calcResult}${right.slice(rightOperand.length)}`;
+
+        return parseFloat(this.calculate(newForm));
     }
 }
-
-const func = () => {
-    const createCaclElement = () => {
-        const calcElement = document.createElement(`div`);
-        calcElement.className = 'calc';
-
-        return calcElement;
-    };
-    const createTextArea = () => {
-        const textArea = document.createElement('div');
-        textArea.className = `text-area`;
-
-        return textArea;
-    };
-};
 
 class View {
     _textArea;
