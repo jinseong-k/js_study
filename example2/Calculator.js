@@ -22,20 +22,16 @@ export class Calculator {
     }
 
     undo() {
-        console.log(`undo : index = ${this._index}`);
         if (this._index > 0) {
             // snapshot
             this._resultValue = this._resultHistory[--this._index]; // [{op: "+", input: 3}, {op: "+", input: 4}, {op: "+", input: 5}] -> 12
         }
         this._curOperator = null;
 
-        console.log(`undo : value : ${this._resultValue}`);
-
         return this._resultValue;
     }
 
     redo() {
-        console.log(`redo : index = ${this._index}`);
         if (this._resultHistory[this._index+1]) {
             this._resultValue = this._resultHistory[this._index+1];
             this._index++;

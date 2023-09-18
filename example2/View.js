@@ -115,11 +115,9 @@ class View {
       this._clearButtonClickHandler();
       return;
     } else if (key === 'Undo') {
-      console.log("AAAAAAAAA");
       this._undoProcess();
       return;
     } else if (key === 'Redo') {
-      console.log("BBBBBB");
       this._redoProcess();
       return;
     }
