@@ -59,6 +59,7 @@ class View {
     const resultTextArea = document.createElement('p');
     resultTextArea.className = `resultText`;
     resultTextArea.style.backgroundColor = 'white';
+    resultTextArea.innerText = '0'; 
 
     return resultTextArea;
   }
@@ -92,7 +93,11 @@ class View {
   }
 
   _handleOps(op) {
-    if (this._inputValue.length <= 0) return;
+    if (this._inputValue === '') {
+      this._calculator.curOperator = op;
+
+      return;
+    }
 
     this._resultValue = this._calculator.calculate(this._inputValue, op);
     this._inputValue = '';
@@ -110,20 +115,24 @@ class View {
       this._clearButtonClickHandler();
       return;
     } else if (key === 'Undo') {
+      console.log("AAAAAAAAA");
       this._undoProcess();
       return;
     } else if (key === 'Redo') {
+      console.log("BBBBBB");
       this._redoProcess();
       return;
     }
   }
 
   _undoProcess() {
-    this._calculator.undo();
+    this._resultValue = this._calculator.undo();
+    this._inputValue = '';
   }
 
   _redoProcess() {
-    this._calculator.redo();
+    this._resultValue = this._calculator.redo();
+    this._inputValue = '';
   }
 
   _createPad() {
@@ -176,7 +185,6 @@ class View {
   }
 
   _createNumPadDiv(index) {
-    console.log(index);
     const numPadDiv = document.createElement('div')
     numPadDiv.className = 'item';
     const numButton = document.createElement('button');
@@ -231,7 +239,6 @@ class View {
     }
 
     for (let i = 0; i < NUM_PAD_COUNT; i++) {
-      console.log(i);
       const numPadDiv = this._createNumPadDiv(i);
       numPad.appendChild(numPadDiv);
     }
@@ -261,7 +268,6 @@ class View {
   }
 }
 
-console.log("RRRR");
 const calculator = new Calculator();
 const view = new View(calculator);
 view.createHtml("first")
