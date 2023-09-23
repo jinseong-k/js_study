@@ -2,12 +2,12 @@ import { Calculator } from "./Calculator.js"; // default
 
 const OPS = ["+", "-", "*", "/"];
 const NUMBERS = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "."];
-const ETCS = ["(", ")", "Enter", "Backspace", "Escape", "=", "Undo", "Redo"];
+const ETCS = ["(", ")", "Enter", "Backspace", "Escape", "=", "Undo", "Redo", "History"];
 const OP_PAD_CHAR = ['C', '+', '-', '*', '/'];
 const OP_PAD_COUNT = 5;
-const NUM_PAD_CHAR = ['Undo', 'Redo', '7', '8', '9', '4', '5', '6', '1', '2', '3', '.', '0', '='];
-const NUM_PAD_COUNT = 14;
-const EMPTY_PAD_COUNT = 1;
+const NUM_PAD_CHAR = ['History', 'Undo', 'Redo', '7', '8', '9', '4', '5', '6', '1', '2', '3', '.', '0', '='];
+const NUM_PAD_COUNT = 15;
+const EMPTY_PAD_COUNT = 0;
 
 const VALUE_TO_KEY = {
   "C": "Escape",
@@ -98,9 +98,54 @@ class View {
 
       return;
     }
-
     this._resultValue = this._calculator.calculate(this._inputValue, op);
+    this._saveHistory(this._resultValue);
     this._inputValue = '';
+  }
+
+  /**
+   * 
+   * @param {*} data 
+   * Browser 저장 방식 공부
+   * [ Cookie ]
+   * - name=value 쌍은 4KB를 넘을 수 없다.
+   * - 도메인 하나당 저장할 수 있는 쿠키의 개수는 20여개 정도. 브라우저마다 조금씩 다름.
+   * 
+   * [ localStroage & session Storage 공통 ]
+   * - 2MB 이상의 데이터를 저장할 수 있도록 해준다.
+   * - HTTP 헤더를 통해 스토리지 객체를 조작할 수 없다.
+   * - 도메인, 프로토콜, 포트로 정의되는 origin에 의존하여, 프로토콜과 서브 도메인이 다르면 데이터에 접근 불가
+   * [ localStorage ] 
+   * - 브라우저를 다시 실행해도 데이터가 사라지지 않음 
+   * - origin 이 동일할 경우, 모든 탭과 창에서 공유됨
+   * [ sessionStorage ]
+   * - 현재 있는 탭에서만 유지
+   * - 페이지를 새로고침 해도 데이터가 사라지지 않음
+   * - 탭을 닫고 새로 열때는 사라짐
+   * - 제한 용량은 대충 5MB정도인듯
+   * 
+   * [ IndexedDB ]
+   * - localStroage 보다 강력한 Browser built in DB
+   * - Alomost any kind of values by keys, multiple key types.
+   * - Support transaction.
+   * - Support key range queries, indexes.
+   * - bigger volume than localStorage
+   * - async/await 사용 가능
+   * 
+   * [ 결론 ]
+   * - 이 계산기에서는 sessionStorage 를 사용하면 되지 않을까 생각됨!
+   * - { key:value }
+   * - 문자열만 가능
+   */
+  _saveHistory(data) {
+    console.log(`Save Data : ${data}`);
+    let index = parseInt(sessionStorage.getItem("index"));
+    index = (index) ? index : 0;
+
+    sessionStorage.setItem(`${index}`, data);
+    sessionStorage.setItem("index", `${++index}`);
+
+    console.log(`index : ${index} data : ${data}`);
   }
 
   _handleNumbers(number) {
@@ -120,6 +165,9 @@ class View {
     } else if (key === 'Redo') {
       this._redoProcess();
       return;
+    } else if (key === 'History') {
+      this._historyProcess();
+      return;
     }
   }
 
@@ -131,6 +179,28 @@ class View {
   _redoProcess() {
     this._resultValue = this._calculator.redo();
     this._inputValue = '';
+  }
+
+  _historyProcess() {
+    let historyArray = [];
+    console.log(`Load Data`);
+    let count = sessionStorage.length;
+    console.log(`count : ${count}`);
+    for (let index = 0; index < count; index++) {
+      let data = sessionStorage.getItem(`${index}`);
+      if (data) {
+        historyArray.push(data);
+      }
+    }
+    for (let data of historyArray) {
+      console.log(data);
+    }
+  }
+
+  // todo. 히스토리 창 띄우기
+  _drawModal() {
+    const modal = document.createElement('div');
+    modal.className = 'modal-overlay';
   }
 
   _createPad() {
@@ -152,7 +222,6 @@ class View {
     this._keyHandle(this._convertToKey(value));
   };
 
-  // 상수처리하기 (C, =, Enter, ...)
   _convertToKey(value) {
     return VALUE_TO_KEY[value] || value;
   }
@@ -165,6 +234,7 @@ class View {
 
   _equalButtonClickHandler() {
     this._resultValue = this._calculator.calculate(this._inputValue, "=");
+    this._saveHistory(this._resultValue);
     this._inputValue = '';
   }
 
@@ -231,10 +301,10 @@ class View {
     const numPad = this._createNumPad();
     this._pad.appendChild(numPad);
 
-    for (let i = 0; i < EMPTY_PAD_COUNT; i++) {
-      const emptyPadDiv = this._createEmptyPadDiv();
-      numPad.appendChild(emptyPadDiv);
-    }
+    // for (let i = 0; i < EMPTY_PAD_COUNT; i++) {
+    //   const emptyPadDiv = this._createEmptyPadDiv();
+    //   numPad.appendChild(emptyPadDiv);
+    // }
 
     for (let i = 0; i < NUM_PAD_COUNT; i++) {
       const numPadDiv = this._createNumPadDiv(i);
