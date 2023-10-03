@@ -3,11 +3,21 @@ import { Calculator } from "./Calculator.js"; // default
 const OPS = ["+", "-", "*", "/"];
 const NUMBERS = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "."];
 const ETCS = ["(", ")", "Enter", "Backspace", "Escape", "=", "Undo", "Redo", "History"];
+
 const OP_PAD_CHAR = ['C', '+', '-', '*', '/'];
 const OP_PAD_COUNT = 5;
-const NUM_PAD_CHAR = ['History', 'Undo', 'Redo', '7', '8', '9', '4', '5', '6', '1', '2', '3', '.', '0', '='];
-const NUM_PAD_COUNT = 15;
-const EMPTY_PAD_COUNT = 0;
+const EMPTY_OP_PAD_COUNT = 1;
+
+const UTIL_PAD_CHAR = ['Clear History', 'Save History', 'Load History'];
+const UTIL_PAD_COUNT = 3;
+const EMPTY_UTIL_PAD_COUNT = 0;
+
+const NUM_PAD_CHAR = ['Undo', 'Redo', '7', '8', '9', '4', '5', '6', '1', '2', '3', '.', '0', '='];
+const NUM_PAD_COUNT = 14;
+const EMPTY_NUM_PAD_COUNT = 1;
+
+const STORAGE_HISTORY_INDEX = "historyIndex";
+const STORAGE_HISTORY_DATA = "historyData"
 
 const VALUE_TO_KEY = {
   "C": "Escape",
@@ -99,8 +109,63 @@ class View {
       return;
     }
     this._resultValue = this._calculator.calculate(this._inputValue, op);
-    this._saveHistory(this._resultValue);
     this._inputValue = '';
+  }
+
+  _handleNumbers(number) {
+    this._inputValue += number;
+  }
+
+  _handleEtcs(key) {
+    if (key === 'Enter') {
+      this._equalButtonClickHandler();
+      return;
+    } else if (key === 'Escape') {
+      this._clearButtonClickHandler();
+      return;
+    } else if (key === 'Undo') {
+      this._undoProcess();
+      return;
+    } else if (key === 'Redo') {
+      this._redoProcess();
+      return;
+    } else if (key === 'Save History') {
+      this._historyProcess('save');
+      return;
+    } else if (key === 'Load History') {
+      this._historyProcess('load');
+      return;
+    } else if (key === 'Clear History') {
+      this._clearHistory();
+      return;
+    }
+  }
+
+  _clearHistory() {
+    localStorage.clear();
+  }
+
+  _undoProcess() {
+    this._resultValue = this._calculator.undo();
+    this._inputValue = '';
+  }
+
+  _redoProcess() {
+    this._resultValue = this._calculator.redo();
+    this._inputValue = '';
+  }
+
+  _historyProcess(type) {
+    switch (type) {
+      case 'save':
+        this._saveHistory(this._calculator.getHistory);
+        break;
+      case 'load':
+        this._loadHistory();
+        break;
+      default:
+        break;
+    }
   }
 
   /**
@@ -133,68 +198,27 @@ class View {
    * - async/await 사용 가능
    * 
    * [ 결론 ]
-   * - 이 계산기에서는 sessionStorage 를 사용하면 되지 않을까 생각됨!
-   * - { key:value }
-   * - 문자열만 가능
+   * localStorage 사용해보기
+   *  
+   * [ 기능 명세 ]
+   * - save : 현재 history를 저장
+   * - load : 현재 저장된 history들을 확인하고, 불러오기
    */
   _saveHistory(data) {
-    console.log(`Save Data : ${data}`);
-    let index = parseInt(sessionStorage.getItem("index"));
-    index = (index) ? index : 0;
-
-    sessionStorage.setItem(`${index}`, data);
-    sessionStorage.setItem("index", `${++index}`);
-
-    console.log(`index : ${index} data : ${data}`);
+    let saveData = this._calculator.getSaveData();
+    localStorage.setItem(STORAGE_HISTORY_INDEX, saveData["index"]);
+    localStorage.setItem(STORAGE_HISTORY_DATA, saveData["historyData"]);
   }
 
-  _handleNumbers(number) {
-    this._inputValue += number;
+  _loadHistory() {
+    const loadData = {"index" : localStorage.getItem(STORAGE_HISTORY_INDEX),
+                  "historyData" : localStorage.getItem(STORAGE_HISTORY_DATA)};
+
+    this._resultValue = this._calculator.setLoadData(loadData);
   }
 
-  _handleEtcs(key) {
-    if (key === 'Enter') {
-      this._equalButtonClickHandler();
-      return;
-    } else if (key === 'Escape') {
-      this._clearButtonClickHandler();
-      return;
-    } else if (key === 'Undo') {
-      this._undoProcess();
-      return;
-    } else if (key === 'Redo') {
-      this._redoProcess();
-      return;
-    } else if (key === 'History') {
-      this._historyProcess();
-      return;
-    }
-  }
-
-  _undoProcess() {
-    this._resultValue = this._calculator.undo();
-    this._inputValue = '';
-  }
-
-  _redoProcess() {
-    this._resultValue = this._calculator.redo();
-    this._inputValue = '';
-  }
-
-  _historyProcess() {
-    let historyArray = [];
-    console.log(`Load Data`);
-    let count = sessionStorage.length;
-    console.log(`count : ${count}`);
-    for (let index = 0; index < count; index++) {
-      let data = sessionStorage.getItem(`${index}`);
-      if (data) {
-        historyArray.push(data);
-      }
-    }
-    for (let data of historyArray) {
-      console.log(data);
-    }
+  _clearHistory() {
+    localStorage.clear();
   }
 
   // todo. 히스토리 창 띄우기
@@ -230,11 +254,12 @@ class View {
     this._inputValue = '';
     this._resultValue = '';
     this._calculator.clearCalculator();
+
+    this._clearHistory();
   }
 
   _equalButtonClickHandler() {
     this._resultValue = this._calculator.calculate(this._inputValue, "=");
-    this._saveHistory(this._resultValue);
     this._inputValue = '';
   }
 
@@ -250,6 +275,18 @@ class View {
     emptyPadDiv.className = 'item';
 
     return emptyPadDiv;
+  }
+
+  _createUtilPadDiv(index) {
+    const numPadDiv = document.createElement('div')
+    numPadDiv.className = 'item';
+    const numButton = document.createElement('button');
+    numButton.className = 'myButton';
+    numButton.innerText = UTIL_PAD_CHAR[index];
+    numButton.value = `${UTIL_PAD_CHAR[index]}`;
+    numPadDiv.appendChild(numButton);
+
+    return numPadDiv;
   }
 
   _createNumPadDiv(index) {
@@ -301,17 +338,35 @@ class View {
     const numPad = this._createNumPad();
     this._pad.appendChild(numPad);
 
-    // for (let i = 0; i < EMPTY_PAD_COUNT; i++) {
-    //   const emptyPadDiv = this._createEmptyPadDiv();
-    //   numPad.appendChild(emptyPadDiv);
-    // }
+    /* Util pad */
+    for (let i = 0; i < EMPTY_UTIL_PAD_COUNT; i++) {
+      const emptyUtilPadDiv = this._createEmptyPadDiv();
+      numPad.appendChild(emptyUtilPadDiv);
+    }
+
+    for (let i = 0; i < UTIL_PAD_COUNT; i++) {
+        const utilPadDiv = this._createUtilPadDiv(i);
+        numPad.appendChild(utilPadDiv);
+    }
+
+    /* Num pad */
+    for (let i = 0; i < EMPTY_NUM_PAD_COUNT; i++) {
+      const emptyPadDiv = this._createEmptyPadDiv();
+      numPad.appendChild(emptyPadDiv);
+    }
 
     for (let i = 0; i < NUM_PAD_COUNT; i++) {
       const numPadDiv = this._createNumPadDiv(i);
       numPad.appendChild(numPadDiv);
     }
 
+    /* Op pad */
     const opPad = this._createOpPad();
+
+    for (let i = 0; i < EMPTY_OP_PAD_COUNT; i++) {
+      const emptyOpPadDiv = this._createEmptyPadDiv();
+      opPad.appendChild(emptyOpPadDiv);
+    }
 
     for (let i = 0; i < OP_PAD_COUNT; i++) {
       const opDiv = this._createOpPadDiv(i);

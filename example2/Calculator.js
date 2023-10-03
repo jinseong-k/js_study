@@ -21,6 +21,14 @@ export class Calculator {
         this._curOperator = op;
     }
 
+    get getHistory() {
+        return this._resultHistory;
+    }
+
+    set setHistory(data) {
+        this._resultHistory = data;
+    }
+
     undo() {
         if (this._index > 0) {
             // snapshot
@@ -79,5 +87,16 @@ export class Calculator {
         this._curOperator = null;
         this._resultHistory = [];
         this._index = -1;
+    }
+
+    getSaveData() {
+        return {"index": this._index, "historyData": this._resultHistory};
+    }
+
+    setLoadData(data) {
+        this._index = data["index"];
+        this._resultHistory = data["historyData"].split(',');
+        this._resultValue = this._resultHistory[this._index];
+        return this._resultValue;
     }
 }
