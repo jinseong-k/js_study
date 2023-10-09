@@ -1,4 +1,5 @@
 import { Calculator } from "./Calculator.js"; // default
+import { History } from "./History.js";
 
 const OPS = ["+", "-", "*", "/"];
 const NUMBERS = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "."];
@@ -16,8 +17,7 @@ const NUM_PAD_CHAR = ['Undo', 'Redo', '7', '8', '9', '4', '5', '6', '1', '2', '3
 const NUM_PAD_COUNT = 14;
 const EMPTY_NUM_PAD_COUNT = 1;
 
-const STORAGE_HISTORY_INDEX = "historyIndex";
-const STORAGE_HISTORY_DATA = "historyData"
+const STORAGE_KEY = "js_history";
 
 const VALUE_TO_KEY = {
   "C": "Escape",
@@ -30,9 +30,12 @@ class View {
   _resultText;
   _pad;
   _calculator;
+  _history;
 
-  constructor(calculator) {
+  constructor(calculator, history) {
     this._calculator = calculator;
+    this._history = history;
+    this._history.addHistory(this._calculator.initValue); // todo this._history.addHistory(this._calculator.initValue);
   }
 
   get _inputValue() {
@@ -109,6 +112,7 @@ class View {
       return;
     }
     this._resultValue = this._calculator.calculate(this._inputValue, op);
+    this._history.addHistory(this._resultValue);
     this._inputValue = '';
   }
 
@@ -130,10 +134,10 @@ class View {
       this._redoProcess();
       return;
     } else if (key === 'Save History') {
-      this._historyProcess('save');
+      this._saveHistory();
       return;
     } else if (key === 'Load History') {
-      this._historyProcess('load');
+      this._loadHistory();
       return;
     } else if (key === 'Clear History') {
       this._clearHistory();
@@ -146,26 +150,16 @@ class View {
   }
 
   _undoProcess() {
-    this._resultValue = this._calculator.undo();
+    this._resultValue = this._history.undo();
+
+    this._calculator.setValue(this._resultValue);
+
     this._inputValue = '';
   }
 
   _redoProcess() {
-    this._resultValue = this._calculator.redo();
+    this._resultValue = this._history.redo();
     this._inputValue = '';
-  }
-
-  _historyProcess(type) {
-    switch (type) {
-      case 'save':
-        this._saveHistory(this._calculator.getHistory);
-        break;
-      case 'load':
-        this._loadHistory();
-        break;
-      default:
-        break;
-    }
   }
 
   /**
@@ -175,11 +169,12 @@ class View {
    * [ Cookie ]
    * - name=value 쌍은 4KB를 넘을 수 없다.
    * - 도메인 하나당 저장할 수 있는 쿠키의 개수는 20여개 정도. 브라우저마다 조금씩 다름.
+   * - share data with Server
    * 
    * [ localStroage & session Storage 공통 ]
    * - 2MB 이상의 데이터를 저장할 수 있도록 해준다.
    * - HTTP 헤더를 통해 스토리지 객체를 조작할 수 없다.
-   * - 도메인, 프로토콜, 포트로 정의되는 origin에 의존하여, 프로토콜과 서브 도메인이 다르면 데이터에 접근 불가
+   * - origin에 의존하여, 프로토콜과 서브 도메인이 다르면 데이터에 접근 불가
    * [ localStorage ] 
    * - 브라우저를 다시 실행해도 데이터가 사라지지 않음 
    * - origin 이 동일할 경우, 모든 탭과 창에서 공유됨
@@ -197,24 +192,32 @@ class View {
    * - bigger volume than localStorage
    * - async/await 사용 가능
    * 
+   * [ origin 이란 ]
+   * - Protocol, Domain, Port
+   * 
    * [ 결론 ]
-   * localStorage 사용해보기
+   * - localStorage 사용해보기
    *  
    * [ 기능 명세 ]
    * - save : 현재 history를 저장
    * - load : 현재 저장된 history들을 확인하고, 불러오기
    */
-  _saveHistory(data) {
-    let saveData = this._calculator.getSaveData();
-    localStorage.setItem(STORAGE_HISTORY_INDEX, saveData["index"]);
-    localStorage.setItem(STORAGE_HISTORY_DATA, saveData["historyData"]);
+  _saveHistory() {
+    const saveData = this._history.getSaveData();
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(saveData)); // '{"index": "1", "historyData": 100}'
   }
 
   _loadHistory() {
-    const loadData = {"index" : localStorage.getItem(STORAGE_HISTORY_INDEX),
-                  "historyData" : localStorage.getItem(STORAGE_HISTORY_DATA)};
+    const data = localStorage.getItem(STORAGE_KEY); // null or '{...}'
 
-    this._resultValue = this._calculator.setLoadData(loadData);
+    if (data === null) {
+      return;
+    }
+
+    const {index, historyData} = JSON.parse(data); // {...}
+
+    this._history.setLoadData({index, historyData});
+    this._resultValue = historyData[index];
   }
 
   _clearHistory() {
@@ -254,12 +257,11 @@ class View {
     this._inputValue = '';
     this._resultValue = '';
     this._calculator.clearCalculator();
-
-    this._clearHistory();
   }
 
   _equalButtonClickHandler() {
     this._resultValue = this._calculator.calculate(this._inputValue, "=");
+    this._history.addHistory(this._resultValue);
     this._inputValue = '';
   }
 
@@ -330,6 +332,7 @@ class View {
     this._inputText = this._createInputArea();
     this._textArea.appendChild(this._inputText);
 
+
   }
 
   _createPadPart() {
@@ -391,6 +394,8 @@ class View {
   }
 }
 
-const calculator = new Calculator();
-const view = new View(calculator);
+
+const calculator = new Calculator(0);
+const history = new History();
+const view = new View(calculator, history);
 view.createHtml("first")

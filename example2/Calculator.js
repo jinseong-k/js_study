@@ -1,16 +1,14 @@
 // 4. history 저장하기/불러오기 (브라우저)
 
 export class Calculator {
-    _resultHistory;
     _resultValue;
     _curOperator;
-    _index;
+    _initValue;
 
-    constructor() {
+    constructor(initValue) {
         this._resultValue = 0;
-        this._resultHistory = [];
         this._curOperator = null;
-        this._index = -1;
+        this._initValue = initValue;
     }
 
     /**
@@ -21,41 +19,18 @@ export class Calculator {
         this._curOperator = op;
     }
 
-    get getHistory() {
-        return this._resultHistory;
+    get initValue() {
+        return this._initValue;
     }
 
-    set setHistory(data) {
-        this._resultHistory = data;
-    }
-
-    undo() {
-        if (this._index > 0) {
-            // snapshot
-            this._resultValue = this._resultHistory[--this._index]; // [{op: "+", input: 3}, {op: "+", input: 4}, {op: "+", input: 5}] -> 12
-        }
+    setValue(value) {
+        this._resultValue = value;
         this._curOperator = null;
-
-        return this._resultValue;
-    }
-
-    redo() {
-        if (this._resultHistory[this._index+1]) {
-            this._resultValue = this._resultHistory[this._index+1];
-            this._index++;
-        }
-        this._curOperator = null;
-
-        return this._resultValue;
     }
 
     calculate(number, op) {
         this._resultValue = this._calculate(this._resultValue, this._curOperator, number);
         this._curOperator = op;
-
-        this._resultHistory[++this._index] = this._resultValue;
-        // this._resultHistory.length = this._index;
-        this._resultHistory[this._index+1] = null;
 
         return this._resultValue;
     }
@@ -85,18 +60,5 @@ export class Calculator {
     clearCalculator() {
         this._resultValue = 0;
         this._curOperator = null;
-        this._resultHistory = [];
-        this._index = -1;
-    }
-
-    getSaveData() {
-        return {"index": this._index, "historyData": this._resultHistory};
-    }
-
-    setLoadData(data) {
-        this._index = data["index"];
-        this._resultHistory = data["historyData"].split(',');
-        this._resultValue = this._resultHistory[this._index];
-        return this._resultValue;
     }
 }
