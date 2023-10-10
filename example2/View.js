@@ -25,14 +25,18 @@ const VALUE_TO_KEY = {
 };
 
 class View {
+  _id;
   _textArea;
   _inputText;
   _resultText;
   _pad;
   _calculator;
   _history;
+  _modalOverlay;
+  _modalItem;
 
-  constructor(calculator, history) {
+  constructor(id, calculator, history) {
+    this._id = id;
     this._calculator = calculator;
     this._history = history;
     this._history.addHistory(this._calculator.initValue); // todo this._history.addHistory(this._calculator.initValue);
@@ -208,26 +212,73 @@ class View {
   }
 
   _loadHistory() {
-    const data = localStorage.getItem(STORAGE_KEY); // null or '{...}'
-
-    if (data === null) {
-      return;
-    }
-
-    const {index, historyData} = JSON.parse(data); // {...}
-
-    this._history.setLoadData({index, historyData});
-    this._resultValue = historyData[index];
+    this._refreshModalItem();
   }
 
   _clearHistory() {
     localStorage.clear();
   }
 
-  // todo. 히스토리 창 띄우기
-  _drawModal() {
-    const modal = document.createElement('div');
-    modal.className = 'modal-overlay';
+  _createModalOverlay() {
+    this._modalOverlay = document.createElement('div');
+    this._modalOverlay.className = 'modalOverlay';
+
+    let modalWindow = this._createModalElement();
+    this._modalOverlay.appendChild(modalWindow);
+
+    document.getElementById(this._id).appendChild(this._modalOverlay);
+  }
+
+  _createModalElement() {
+    const modalWindow = document.createElement('div');
+    modalWindow.className = "modalWindow";
+
+    const modalCloseButton = this._createModalCloseButton();
+    modalWindow.appendChild(modalCloseButton);
+
+    const modalContents = this._createModalContents();
+    modalWindow.appendChild(modalContents);
+
+    return modalWindow;
+  }
+
+  _modalCloseEventListener = (e) => {
+    this._modalOverlay.style.display = "none";
+  }
+
+  _modalItemClickEventListener = (e) => {
+    const { index, historyData } = JSON.parse(localStorage.getItem(STORAGE_KEY));
+    this._history.setLoadData({index, historyData});
+    this._resultValue = historyData[index];
+    this._modalCloseEventListener(e);
+  }
+
+  _createModalCloseButton() {
+    const modalCloseButton = document.createElement('button');
+    modalCloseButton.innerText = "x";
+    modalCloseButton.addEventListener("click", this._modalCloseEventListener);
+    return modalCloseButton;
+  }
+
+  _createModalContents() {
+    const modalContents = document.createElement('div');
+    modalContents.className = "modalContents";
+
+    this._modalItem = document.createElement('button');
+    this._modalItem.className = "modalItem";
+    this._modalItem.addEventListener("click", this._modalItemClickEventListener);
+
+    modalContents.appendChild(this._modalItem);
+    return modalContents;
+  }
+
+  _refreshModalItem() {
+    const item = localStorage.getItem(STORAGE_KEY);
+    if (item) {
+      const { index, historyData } = JSON.parse(item);
+      this._modalItem.innerText = `${index} : ${historyData}`;
+      this._modalOverlay.style.display = 'flex';
+    }
   }
 
   _createPad() {
@@ -331,8 +382,6 @@ class View {
 
     this._inputText = this._createInputArea();
     this._textArea.appendChild(this._inputText);
-
-
   }
 
   _createPadPart() {
@@ -385,17 +434,20 @@ class View {
     this._calcElement.appendChild(this._pad);
   }
 
-  createHtml(id) {
+  createHtml() {
     this._createTextAreaPart();
     this._createPadPart();
     this._createCalcPart();
 
-    document.getElementById(id).appendChild(this._calcElement);
+    document.getElementById(this._id).appendChild(this._calcElement);
+
+    this._createModalOverlay();
   }
 }
 
-
-const calculator = new Calculator(0);
+const id = "first";
+const initValue = 0;
+const calculator = new Calculator(initValue);
 const history = new History();
-const view = new View(calculator, history);
-view.createHtml("first")
+const view = new View(id, calculator, history);
+view.createHtml();
