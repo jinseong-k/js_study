@@ -33,6 +33,7 @@ class View {
   _calculator;
   _history;
   _modalOverlay;
+  _modalContents;
   _modalItem;
 
   constructor(id, calculator, history) {
@@ -166,49 +167,17 @@ class View {
     this._inputValue = '';
   }
 
-  /**
-   * 
-   * @param {*} data 
-   * Browser 저장 방식 공부
-   * [ Cookie ]
-   * - name=value 쌍은 4KB를 넘을 수 없다.
-   * - 도메인 하나당 저장할 수 있는 쿠키의 개수는 20여개 정도. 브라우저마다 조금씩 다름.
-   * - share data with Server
-   * 
-   * [ localStroage & session Storage 공통 ]
-   * - 2MB 이상의 데이터를 저장할 수 있도록 해준다.
-   * - HTTP 헤더를 통해 스토리지 객체를 조작할 수 없다.
-   * - origin에 의존하여, 프로토콜과 서브 도메인이 다르면 데이터에 접근 불가
-   * [ localStorage ] 
-   * - 브라우저를 다시 실행해도 데이터가 사라지지 않음 
-   * - origin 이 동일할 경우, 모든 탭과 창에서 공유됨
-   * [ sessionStorage ]
-   * - 현재 있는 탭에서만 유지
-   * - 페이지를 새로고침 해도 데이터가 사라지지 않음
-   * - 탭을 닫고 새로 열때는 사라짐
-   * - 제한 용량은 대충 5MB정도인듯
-   * 
-   * [ IndexedDB ]
-   * - localStroage 보다 강력한 Browser built in DB
-   * - Alomost any kind of values by keys, multiple key types.
-   * - Support transaction.
-   * - Support key range queries, indexes.
-   * - bigger volume than localStorage
-   * - async/await 사용 가능
-   * 
-   * [ origin 이란 ]
-   * - Protocol, Domain, Port
-   * 
-   * [ 결론 ]
-   * - localStorage 사용해보기
-   *  
-   * [ 기능 명세 ]
-   * - save : 현재 history를 저장
-   * - load : 현재 저장된 history들을 확인하고, 불러오기
-   */
+  _makeStorageKey(index) {
+    return `${STORAGE_KEY}_${index}`;
+  }
+
   _saveHistory() {
     const saveData = this._history.getSaveData();
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(saveData)); // '{"index": "1", "historyData": 100}'
+
+    const storageData = JSON.parse(localStorage.getItem(STORAGE_KEY)) ?? [];
+
+    storageData.push(saveData);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(storageData));
   }
 
   _loadHistory() {
@@ -236,21 +205,21 @@ class View {
     const modalCloseButton = this._createModalCloseButton();
     modalWindow.appendChild(modalCloseButton);
 
-    const modalContents = this._createModalContents();
-    modalWindow.appendChild(modalContents);
+    this._modalContents = this._createModalContents();
+    modalWindow.appendChild(this._modalContents);
 
     return modalWindow;
   }
 
-  _modalCloseEventListener = (e) => {
+  _modalCloseEventListener = () => {
     this._modalOverlay.style.display = "none";
   }
 
-  _modalItemClickEventListener = (e) => {
-    const { index, historyData } = JSON.parse(localStorage.getItem(STORAGE_KEY));
+  _modalItemClickEventListener = (item) => {
+    const { index, historyData } = item;
     this._history.setLoadData({index, historyData});
     this._resultValue = historyData[index];
-    this._modalCloseEventListener(e);
+    this._modalCloseEventListener();
   }
 
   _createModalCloseButton() {
@@ -264,21 +233,21 @@ class View {
     const modalContents = document.createElement('div');
     modalContents.className = "modalContents";
 
-    this._modalItem = document.createElement('button');
-    this._modalItem.className = "modalItem";
-    this._modalItem.addEventListener("click", this._modalItemClickEventListener);
-
-    modalContents.appendChild(this._modalItem);
     return modalContents;
   }
 
   _refreshModalItem() {
-    const item = localStorage.getItem(STORAGE_KEY);
-    if (item) {
-      const { index, historyData } = JSON.parse(item);
-      this._modalItem.innerText = `${index} : ${historyData}`;
-      this._modalOverlay.style.display = 'flex';
-    }
+    const storageData = JSON.parse(localStorage.getItem(STORAGE_KEY)) ?? [];
+
+    const items = storageData.map((data) => {
+      const item = document.createElement("button");
+      item.innerText = `${data["index"]} : ${data["historyData"]}`;
+      item.addEventListener("click", () => this._modalItemClickEventListener(data));
+      return item;
+    });
+
+    this._modalContents.replaceChildren(...items);
+    this._modalOverlay.style.display = 'flex';
   }
 
   _createPad() {
