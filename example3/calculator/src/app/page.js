@@ -17,7 +17,7 @@ function ResultText({resultValue}) {
   )
 }
 
-function InputText({input, setResult, setInput, calculator}) {
+function InputText({input, setResult, setInput, calculator, equalButtonClickHandler}) {
   const OPS = ["+", "-", "*", "/"];
   const NUMBERS = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "."];
 
@@ -81,14 +81,6 @@ function InputText({input, setResult, setInput, calculator}) {
     calculator.clearCalculator();
   }
 
-  function equalButtonClickHandler() {
-    if (input === "") return;
-    console.log("Enter!!");
-    setResult(calculator.calculate(input, "="));
-    //this._history.addHistory(this._resultValue);
-    setInput("");
-  }
-
   function onKeyDownEvent(e) {
     if (e.key === 'Enter') {
       equalButtonClickHandler();
@@ -102,24 +94,18 @@ function InputText({input, setResult, setInput, calculator}) {
 }
 
 // props drilling..
-function TextAreaPart({input, result, setResult, setInput, calculator}) {
+function TextAreaPart({input, result, setResult, setInput, calculator, equalButtonClickHandler}) {
   return (
     <div className="text-area">
       <ResultText resultValue={result}/>
-      <InputText input={input} setResult={setResult} setInput={setInput} calculator={calculator}/>
+      <InputText input={input} setResult={setResult} setInput={setInput} calculator={calculator} equalButtonClickHandler={equalButtonClickHandler}/>
     </div>
   )
 }
 
-function ButtonPad({item, input, itemValue, setInput, setResult}) {
-  const clickEventListener = (e) => {
-    const { value } = event.target;
-    console.log(value);
-    setInput(input+value);
-  };
-
+function ButtonPad({item, input, itemValue, setInput, setResult, eventListener}) {
   return (
-    <button className="item" value={itemValue} onClick={clickEventListener}>
+    <button className="item" value={itemValue} onClick={eventListener}>
       {itemValue}
     </button>
   )
@@ -139,10 +125,20 @@ const numPadArray = [
 const opPadArray = [
   "C", "+", "-", "*", "/"
 ];
+const NUMBERS = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "."];
 
-function NumPadPart({input, result, setResult, setInput, calculator}) {
+function NumPadPart({input, setResult, setInput, equalButtonClickHandler}) {
+  function numPadEventListener(e) {
+    const key = e.target.value;
+    if (NUMBERS.includes(key)) {
+      if (!input && key === ".") return;
+      setInput(input + key);
+    } else {
+      equalButtonClickHandler();
+    }
+  }
   const buttonArray = numPadArray.map((item) => {
-    return <ButtonPad key={item} itemValue={item} input={input} setInput={setInput} setResult={setResult}/>;
+    return <ButtonPad key={item} itemValue={item} input={input} setInput={setInput} setResult={setResult} eventListener={numPadEventListener}/>;
   });
 
   return (
@@ -152,9 +148,20 @@ function NumPadPart({input, result, setResult, setInput, calculator}) {
   )
 }
 
-function OpPadPart({input, result, setResult, setInput, calculator}) {
+function OpPadPart({input, setResult, setInput, calculator}) {
+  function opPadEventListener(e) {
+    const op = e.target.value;
+    setInput("");
+    if (input === '') {
+      calculator.curOperator = op;
+      return;
+    }
+    setResult(calculator.calculate(input, op));
+    //this._history.addHistory(this._resultValue);
+  }
+
   const buttonArray = opPadArray.map((item) => {
-    return <ButtonPad key={item} itemValue={item} setInput={setInput} setResult={setResult}/>;
+    return <ButtonPad key={item} itemValue={item} setInput={setInput} setResult={setResult} eventListener={opPadEventListener}/>;
   });
 
   return (
@@ -164,11 +171,11 @@ function OpPadPart({input, result, setResult, setInput, calculator}) {
   )
 }
 
-function PadPart({input, result, setResult, setInput, calculator}) {
+function PadPart({input, setResult, setInput, calculator, equalButtonClickHandler}) {
   return (
     <div className="pad">
-      <NumPadPart input={input} result={result} setResult={setResult} setInput={setInput} calculator={calculator}/>
-      <OpPadPart input={input} result={result} setResult={setResult} setInput={setInput} calculator={calculator}/>
+      <NumPadPart input={input} setInput={setInput} equalButtonClickHandler={equalButtonClickHandler}/>
+      <OpPadPart input={input} setResult={setResult} setInput={setInput} calculator={calculator}/>
     </div>
   )
 }
@@ -179,10 +186,18 @@ function Panel({calculator}) {
 
   const Param = {result, setResult, input, setInput, calculator};
 
+  function equalButtonClickHandler() {
+    if (input === "") return;
+    console.log("Enter!!");
+    setResult(calculator.calculate(input, "="));
+    //this._history.addHistory(this._resultValue);
+    setInput("");
+  }
+
   return (
     <div>
-      <TextAreaPart input={input} result={result} setResult={setResult} setInput={setInput} calculator={calculator}/>
-      <PadPart input={input} result={result} setResult={setResult} setInput={setInput} calculator={calculator}/>
+      <TextAreaPart input={input} result={result} setResult={setResult} setInput={setInput} calculator={calculator} equalButtonClickHandler={equalButtonClickHandler}/>
+      <PadPart input={input} setResult={setResult} setInput={setInput} calculator={calculator} equalButtonClickHandler={equalButtonClickHandler}/>
     </div>
   )
 }
