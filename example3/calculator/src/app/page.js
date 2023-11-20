@@ -2,6 +2,22 @@
 import { useState } from 'react';
 import { Calculator } from './Calculator';
 
+// todo. History 관련 pad 나누기
+const historyPadArray = [
+  "clear History",
+  "load History",
+  "save History"];
+const numPadArray = [
+  "clear History", "load History", "save History",
+  "7", "8", "9",
+  "4", "5", "6",
+  "1", "2", "3",
+  ".", "0", "="];
+const opPadArray = [
+  "C", "+", "-", "*", "/"
+];
+const NUMBERS = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "."];
+
 const VALUE_TO_KEY = {
   "C": "Escape",
   "=": "Enter"
@@ -98,7 +114,10 @@ function TextAreaPart({input, result, setResult, setInput, calculator, equalButt
   return (
     <div className="text-area">
       <ResultText resultValue={result}/>
-      <InputText input={input} setResult={setResult} setInput={setInput} calculator={calculator} equalButtonClickHandler={equalButtonClickHandler}/>
+      <InputText input={input}
+        setResult={setResult} setInput={setInput}
+        calculator={calculator}
+        equalButtonClickHandler={equalButtonClickHandler} />
     </div>
   )
 }
@@ -111,22 +130,6 @@ function ButtonPad({item, input, itemValue, setInput, setResult, eventListener})
   )
 }
 
-// todo. History 관련 pad 나누기
-const historyPadArray = [
-  "clear History",
-  "load History",
-  "save History"];
-const numPadArray = [
-  "clear History", "load History", "save History",
-  "7", "8", "9",
-  "4", "5", "6",
-  "1", "2", "3",
-  ".", "0", "="];
-const opPadArray = [
-  "C", "+", "-", "*", "/"
-];
-const NUMBERS = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "."];
-
 function NumPadPart({input, setResult, setInput, equalButtonClickHandler}) {
   function numPadEventListener(e) {
     const key = e.target.value;
@@ -138,7 +141,10 @@ function NumPadPart({input, setResult, setInput, equalButtonClickHandler}) {
     }
   }
   const buttonArray = numPadArray.map((item) => {
-    return <ButtonPad key={item} itemValue={item} input={input} setInput={setInput} setResult={setResult} eventListener={numPadEventListener}/>;
+    return <ButtonPad key={item} itemValue={item}
+      input={input} setInput={setInput}
+      setResult={setResult}
+      eventListener={numPadEventListener} />;
   });
 
   return (
@@ -161,7 +167,9 @@ function OpPadPart({input, setResult, setInput, calculator}) {
   }
 
   const buttonArray = opPadArray.map((item) => {
-    return <ButtonPad key={item} itemValue={item} setInput={setInput} setResult={setResult} eventListener={opPadEventListener}/>;
+    return <ButtonPad key={item} itemValue={item}
+      setInput={setInput} setResult={setResult}
+      eventListener={opPadEventListener} />;
   });
 
   return (
@@ -174,8 +182,10 @@ function OpPadPart({input, setResult, setInput, calculator}) {
 function PadPart({input, setResult, setInput, calculator, equalButtonClickHandler}) {
   return (
     <div className="pad">
-      <NumPadPart input={input} setInput={setInput} equalButtonClickHandler={equalButtonClickHandler}/>
-      <OpPadPart input={input} setResult={setResult} setInput={setInput} calculator={calculator}/>
+      <NumPadPart input={input} setInput={setInput}
+        equalButtonClickHandler={equalButtonClickHandler} />
+      <OpPadPart input={input} setResult={setResult}
+        setInput={setInput} calculator={calculator} />
     </div>
   )
 }
@@ -196,8 +206,14 @@ function Panel({calculator}) {
 
   return (
     <div>
-      <TextAreaPart input={input} result={result} setResult={setResult} setInput={setInput} calculator={calculator} equalButtonClickHandler={equalButtonClickHandler}/>
-      <PadPart input={input} setResult={setResult} setInput={setInput} calculator={calculator} equalButtonClickHandler={equalButtonClickHandler}/>
+      <TextAreaPart input={input} result={result}
+        setResult={setResult} setInput={setInput}
+        calculator={calculator}
+        equalButtonClickHandler={equalButtonClickHandler} />
+      <PadPart input={input}
+        setResult={setResult} setInput={setInput}
+        calculator={calculator}
+        equalButtonClickHandler={equalButtonClickHandler} />
     </div>
   )
 }
