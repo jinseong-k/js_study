@@ -126,7 +126,7 @@ class View {
   }
 
   _handleEtcs(key) {
-    if (key === 'Enter') {
+    if (key === 'Enter' || key === '=') {
       this._equalButtonClickHandler();
       return;
     } else if (key === 'Escape') {
