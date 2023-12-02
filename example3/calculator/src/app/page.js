@@ -1,6 +1,11 @@
 "use client"
 import { useState } from 'react';
 import { Calculator } from './Calculator';
+import { History } from './History';
+import { useContext } from 'react';
+import { CalculatorContext } from './context/CalculatorContext';
+import { ResultContext } from './context/TextContext';
+import { InputContext } from './context/TextContext';
 
 // todo. History 관련 pad 나누기
 const historyPadArray = [
@@ -14,47 +19,36 @@ const numPadArray = [
   "1", "2", "3",
   ".", "0", "="];
 const opPadArray = [
-  "C", "+", "-", "*", "/"
-];
-const NUMBERS = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "."];
+  "C", "+", "-", "*", "/" ];
 
 const VALUE_TO_KEY = {
   "C": "Escape",
   "=": "Enter"
 };
 
+const OPS = ["+", "-", "*", "/"];
+const NUMBERS = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "."];
+
 function convertToKey(value) {
   return VALUE_TO_KEY[value] || value;
 }
 
-function ResultText({resultValue}) {
+function ResultText() {
+  let { result } = useContext(ResultContext);
   return (
-    <p className="resultText">{resultValue}</p>
+    <p className="resultText">{result}</p>
   )
 }
 
-function InputText({input, setResult, setInput, calculator, equalButtonClickHandler}) {
-  const OPS = ["+", "-", "*", "/"];
-  const NUMBERS = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "."];
+function InputText({handleEqualButton}) {
+  const calculator = useContext(CalculatorContext);
+  const { input, setInput } = useContext(InputContext);
+  const { setResult } = useContext(ResultContext);
 
-  const onChangeEventHandle = (e) => {
-    console.log("!!!!!!!!!!!!!!!!!!!!!");
+  const handleOnChangeEvent = (e) => {
     const inputData = e.target.value;
-    const insertKeyboard = inputData[inputData.length-1];
-    e.preventDefault();
 
-    keyHandle(inputData, convertToKey(insertKeyboard));
-  }
-
-  function keyHandle(inputData, insertKeyboard) {
-    if (OPS.includes(insertKeyboard)) {
-      handleOps(insertKeyboard);
-      setInput("");
-    } else if (NUMBERS.includes(insertKeyboard)) {
-      setInput(inputData);
-    } else {
-      handleEtcs(inputData);
-    }
+    setInput(inputData);
   }
 
   const handleOps = (op) => {
@@ -66,85 +60,75 @@ function InputText({input, setResult, setInput, calculator, equalButtonClickHand
     //this._history.addHistory(this._resultValue);
   }
 
-  function handleEtcs (key) {
-    if (key === 'Enter') {
-      equalButtonClickHandler();
-      return;
-    } else if (key === 'Escape') {
-      clearButtonClickHandler();
-      return;
-    } else if (key === 'Undo') {
-      // this._undoProcess();
-      return;
-    } else if (key === 'Redo') {
-      // this._redoProcess();
-      return;
-    } else if (key === 'Save History') {
-      // this._saveHistory();
-      return;
-    } else if (key === 'Load History') {
-      // this._loadHistory();
-      return;
-    } else if (key === 'Clear History') {
-      // this._clearHistory();
-      return;
-    }
-  }
-
-  function clearButtonClickHandler() {
+  function handleClearButton() {
     setInput('');
     setResult('');
     calculator.clearCalculator();
   }
 
   function onKeyDownEvent(e) {
-    if (e.key === 'Enter') {
-      equalButtonClickHandler();
+    const {key} = e;
+
+    if (NUMBERS.includes(key)) {
+      return;
+    }
+
+    e.preventDefault();
+
+    if (OPS.includes(key)) {
+      handleOps(key);
+      setInput('');
+    } else if (key === 'Enter') {
+      handleEqualButton();
+    } else if (key === 'Escape') {
+      handleClearButton();
     }
   }
 
   return (
-    <input className="inputText" type='text' onChange={onChangeEventHandle} onKeyDown={onKeyDownEvent} value={input}>
-    </input>
+    <input className="inputText"
+      type='text'
+      onChange={handleOnChangeEvent}
+      onKeyDown={onKeyDownEvent}
+      value={input} />
   )
 }
 
-// props drilling..
-function TextAreaPart({input, result, setResult, setInput, calculator, equalButtonClickHandler}) {
+function TextAreaPart({ handleEqualButton }) {
   return (
     <div className="text-area">
-      <ResultText resultValue={result}/>
-      <InputText input={input}
-        setResult={setResult} setInput={setInput}
-        calculator={calculator}
-        equalButtonClickHandler={equalButtonClickHandler} />
+      <ResultText />
+      <InputText handleEqualButton={handleEqualButton} />
     </div>
   )
 }
 
-function ButtonPad({item, input, itemValue, setInput, setResult, eventListener}) {
+function ButtonPad({ itemValue, handleEvent}) {
   return (
-    <button className="item" value={itemValue} onClick={eventListener}>
+    <button className="item" value={itemValue} onClick={handleEvent}>
       {itemValue}
     </button>
   )
 }
 
-function NumPadPart({input, setResult, setInput, equalButtonClickHandler}) {
-  function numPadEventListener(e) {
+function NumPadPart({ handleEqualButton }) {
+  const { input, setInput } = useContext(InputContext);
+  const { setResult } = useContext(ResultContext);
+
+  function handleNumPadEvent(e) {
     const key = e.target.value;
     if (NUMBERS.includes(key)) {
       if (!input && key === ".") return;
       setInput(input + key);
-    } else {
-      equalButtonClickHandler();
+    } else if (key === '=' || key === 'Enter') {
+      handleEqualButton();
     }
   }
+
   const buttonArray = numPadArray.map((item) => {
-    return <ButtonPad key={item} itemValue={item}
-      input={input} setInput={setInput}
-      setResult={setResult}
-      eventListener={numPadEventListener} />;
+    return <ButtonPad key={item}
+      itemValue={item}
+      handleEvent={handleNumPadEvent} />;
   });
 
   return (
@@ -154,10 +138,20 @@ function NumPadPart({input, setResult, setInput, equalButtonClickHandler}) {
   )
 }
 
-function OpPadPart({input, setResult, setInput, calculator}) {
-  function opPadEventListener(e) {
+function OpPadPart() {
+  const calculator = useContext(CalculatorContext);
+  const { input, setInput } = useContext(InputContext);
+  const { setResult } = useContext(ResultContext);
+
+  function handleOpPadEvent(e) {
     const op = e.target.value;
     setInput("");
+
+    if (op === "C") {
+      setResult("0");
+      return;
+    }
+
     if (input === '') {
       calculator.curOperator = op;
       return;
@@ -167,9 +161,9 @@ function OpPadPart({input, setResult, setInput, calculator}) {
   }
 
   const buttonArray = opPadArray.map((item) => {
-    return <ButtonPad key={item} itemValue={item}
-      setInput={setInput} setResult={setResult}
-      eventListener={opPadEventListener} />;
+    return <ButtonPad key={item}
+      itemValue={item}
+      handleEvent={handleOpPadEvent} />;
   });
 
   return (
@@ -179,24 +173,22 @@ function OpPadPart({input, setResult, setInput, calculator}) {
   )
 }
 
-function PadPart({input, setResult, setInput, calculator, equalButtonClickHandler}) {
+function PadPart({ handleEqualButton }) {
   return (
     <div className="pad">
-      <NumPadPart input={input} setInput={setInput}
-        equalButtonClickHandler={equalButtonClickHandler} />
-      <OpPadPart input={input} setResult={setResult}
-        setInput={setInput} calculator={calculator} />
+      <NumPadPart handleEqualButton={handleEqualButton} />
+      <OpPadPart />
     </div>
   )
 }
 
-function Panel({calculator}) {
+function Panel({ history }) {
   const [result, setResult] = useState(0);
   const [input, setInput] = useState("");
 
-  const Param = {result, setResult, input, setInput, calculator};
+  let calculator = useContext(CalculatorContext);
 
-  function equalButtonClickHandler() {
+  function handleEqualButton() { // handleEqual, handleEqualButton, handleEqualButtonClick
     if (input === "") return;
     console.log("Enter!!");
     setResult(calculator.calculate(input, "="));
@@ -206,21 +198,31 @@ function Panel({calculator}) {
 
   return (
     <div>
-      <TextAreaPart input={input} result={result}
-        setResult={setResult} setInput={setInput}
-        calculator={calculator}
-        equalButtonClickHandler={equalButtonClickHandler} />
-      <PadPart input={input}
-        setResult={setResult} setInput={setInput}
-        calculator={calculator}
-        equalButtonClickHandler={equalButtonClickHandler} />
+      <ResultContext.Provider value={{ result, setResult }}>
+        <InputContext.Provider value={{ input, setInput }}>
+          <TextAreaPart handleEqualButton={handleEqualButton} />
+          <PadPart handleEqualButton={handleEqualButton} />
+        </InputContext.Provider>
+      </ResultContext.Provider>
     </div>
   )
 }
 
-let calculator = new Calculator();
+let history = new History();
 export default function Home() {
+  const calculator = new Calculator(0);
   return (
-    <Panel calculator={calculator}/>
+    <CalculatorContext.Provider value={calculator}>
+      <Panel history={history} />
+    </CalculatorContext.Provider>
   )
 }
+
+
+/**
+ * Context 사용해보기
+ * 1. Context 생성하기
+ *    - createContext();
+ * 2. 데이터가 필요한 컴포넌트에서 context를 사용하기
+ * 3. 데이터를 지정하는 컴포넌트에서 context를 제공하기
+ */
