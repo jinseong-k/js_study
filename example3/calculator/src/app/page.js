@@ -66,7 +66,7 @@ function InputText({handleEqualButton}) {
     calculator.clearCalculator();
   }
 
-  function onKeyDownEvent(e) {
+  function handleKeyDownEvent(e) {
     const {key} = e;
 
     if (NUMBERS.includes(key)) {
@@ -89,7 +89,7 @@ function InputText({handleEqualButton}) {
     <input className="inputText"
       type='text'
       onChange={handleOnChangeEvent}
-      onKeyDown={onKeyDownEvent}
+      onKeyDown={handleKeyDownEvent}
       value={input} />
   )
 }
