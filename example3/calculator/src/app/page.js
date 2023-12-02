@@ -224,5 +224,7 @@ export default function Home() {
  * 1. Context 생성하기
  *    - createContext();
  * 2. 데이터가 필요한 컴포넌트에서 context를 사용하기
+ *    - useContext();
  * 3. 데이터를 지정하는 컴포넌트에서 context를 제공하기
+ *    - <Context.Provider> <ChildrenComponent /> </Context.Provider>
  */
