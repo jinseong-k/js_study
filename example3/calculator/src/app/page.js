@@ -1,25 +1,30 @@
 "use client"
-import { useState } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import { Calculator } from './Calculator';
 import { History } from './History';
 import { useContext } from 'react';
 import { CalculatorContext } from './context/CalculatorContext';
 import { ResultContext } from './context/TextContext';
 import { InputContext } from './context/TextContext';
+import { HistoryContext } from './context/HistoryContext';
+import { HandleEqualButtonContext } from './context/FunctionContext';
 
-// todo. History 관련 pad 나누기
 const historyPadArray = [
   "clear History",
   "load History",
   "save History"];
+const actionHistoryArray = [
+  "undo", "redo", ""];
+const actionList = {
+  "undo":"undo", "redo":"redo"
+}
 const numPadArray = [
-  "clear History", "load History", "save History",
   "7", "8", "9",
   "4", "5", "6",
   "1", "2", "3",
   ".", "0", "="];
 const opPadArray = [
-  "C", "+", "-", "*", "/" ];
+  "", "C", "+", "-", "*", "/" ];
 
 const VALUE_TO_KEY = {
   "C": "Escape",
@@ -40,10 +45,12 @@ function ResultText() {
   )
 }
 
-function InputText({handleEqualButton}) {
+function InputText() {
   const calculator = useContext(CalculatorContext);
+  const history = useContext(HistoryContext);
   const { input, setInput } = useContext(InputContext);
-  const { setResult } = useContext(ResultContext);
+  const { result, setResult } = useContext(ResultContext);
+  const handleEqualButton = useContext(HandleEqualButtonContext);
 
   const handleOnChangeEvent = (e) => {
     const inputData = e.target.value;
@@ -57,7 +64,7 @@ function InputText({handleEqualButton}) {
       return;
     }
     setResult(calculator.calculate(input, op));
-    //this._history.addHistory(this._resultValue);
+    history.addHistory(result);
   }
 
   function handleClearButton() {
@@ -94,11 +101,11 @@ function InputText({handleEqualButton}) {
   )
 }
 
-function TextAreaPart({ handleEqualButton }) {
+function TextAreaPart() {
   return (
     <div className="text-area">
       <ResultText />
-      <InputText handleEqualButton={handleEqualButton} />
+      <InputText />
     </div>
   )
 }
@@ -111,9 +118,9 @@ function ButtonPad({ itemValue, handleEvent}) {
   )
 }
 
-function NumPadPart({ handleEqualButton }) {
+function NumPadPart() {
   const { input, setInput } = useContext(InputContext);
-  const { setResult } = useContext(ResultContext);
+  const handleEqualButton = useContext(HandleEqualButtonContext);
 
   function handleNumPadEvent(e) {
     const key = e.target.value;
@@ -140,8 +147,9 @@ function NumPadPart({ handleEqualButton }) {
 
 function OpPadPart() {
   const calculator = useContext(CalculatorContext);
+  const history = useContext(HistoryContext);
   const { input, setInput } = useContext(InputContext);
-  const { setResult } = useContext(ResultContext);
+  const { result, setResult } = useContext(ResultContext);
 
   function handleOpPadEvent(e) {
     const op = e.target.value;
@@ -157,8 +165,8 @@ function OpPadPart() {
       return;
     }
     setResult(calculator.calculate(input, op));
-    //this._history.addHistory(this._resultValue);
-  }
+    history.addHistory(result);
+  };
 
   const buttonArray = opPadArray.map((item) => {
     return <ButtonPad key={item}
@@ -173,54 +181,136 @@ function OpPadPart() {
   )
 }
 
-function PadPart({ handleEqualButton }) {
-  return (
-    <div className="pad">
-      <NumPadPart handleEqualButton={handleEqualButton} />
-      <OpPadPart />
-    </div>
-  )
-}
+function HistoryPadPart() {
+  const history = useContext(HistoryContext);
+  const { setResult } = useContext(ResultContext);
 
-function Panel({ history }) {
-  const [result, setResult] = useState(0);
-  const [input, setInput] = useState("");
-
-  let calculator = useContext(CalculatorContext);
-
-  function handleEqualButton() { // handleEqual, handleEqualButton, handleEqualButtonClick
-    if (input === "") return;
-    console.log("Enter!!");
-    setResult(calculator.calculate(input, "="));
-    //this._history.addHistory(this._resultValue);
-    setInput("");
+  function handleHistoryPadEvent(e) {
+    const key = e.target.value;
+    console.log(key);
+    if (key === "save History") {
+      history.handleSaveHistoryButton();
+    } else if (key === "load History") {
+      history.handleLoadHistoryButton();
+    } else if (key === "clear History") {
+      history.handleClearHistoryButton();
+    } else {
+      console.log("Invalid key");
+    }
   }
 
   return (
-    <div>
-      <ResultContext.Provider value={{ result, setResult }}>
-        <InputContext.Provider value={{ input, setInput }}>
-          <TextAreaPart handleEqualButton={handleEqualButton} />
-          <PadPart handleEqualButton={handleEqualButton} />
-        </InputContext.Provider>
-      </ResultContext.Provider>
+    <div className="history-pad">
+      {historyPadArray.map((item) => {
+        return <ButtonPad key={item}
+          itemValue={item}
+          handleEvent={handleHistoryPadEvent} />;
+      })}
+    </div>
+  );
+}
+
+function ActionPadPart() {
+  const {input, setInput} = useContext(InputContext);
+  const {result, setResult} = useContext(ResultContext);
+  const history = useContext(HistoryContext);
+  const calculator = useContext(CalculatorContext);
+
+  function handleActionButton(e) {
+    switch (e.target.value) {
+      case actionList.redo:
+        processRedo();
+        return;
+      case actionList.undo:
+        processUndo();
+        return;
+      default:
+        return;
+    }
+  }
+
+  function processUndo() {
+    setResult(history.undo());
+    calculator.setValue(result);
+    setInput("0");
+  }
+
+  function processRedo() {
+    setResult(history.redo());
+    setInput("0");
+  }
+
+  return (
+    <div className="action-pad">
+      {actionHistoryArray.map((item) => {
+        return <ButtonPad key={item}
+          itemValue={item}
+          handleEvent={handleActionButton} />;
+      })}
+    </div>
+  );
+}
+
+function PadPart() {
+  return (
+    <div className="pad">
+      <div>
+        <HistoryPadPart />
+        <ActionPadPart />
+        <NumPadPart />
+      </div>
+      <div>
+        <OpPadPart />
+      </div>
     </div>
   )
 }
 
-let history = new History();
+function Panel() {
+  const [result, setResult] = useState(0);
+  const [input, setInput] = useState("");
+
+  const calculator = useContext(CalculatorContext);
+  const history = useContext(HistoryContext);
+
+  function handleEqualButton() {
+    if (input === "") return;
+    setResult(calculator.calculate(input, "="));
+    history.addHistory(result);
+    setInput("");
+  }
+
+  const resultValue = useMemo(() => ({result, setResult}), [result, setResult]);
+  const inputValue = useMemo(() => ({input, setInput}), [input, setInput]);
+
+  return (
+    <div>
+      <HandleEqualButtonContext.Provider value={handleEqualButton}>
+        <ResultContext.Provider value={resultValue}>
+          <InputContext.Provider value={inputValue}>
+            <TextAreaPart />
+            <PadPart />
+          </InputContext.Provider>
+        </ResultContext.Provider>
+      </HandleEqualButtonContext.Provider>
+    </div>
+  )
+}
+
 export default function Home() {
   const calculator = new Calculator(0);
+  const history = new History();
   return (
     <CalculatorContext.Provider value={calculator}>
-      <Panel history={history} />
+      <HistoryContext.Provider value={history}>
+        <Panel />
+      </HistoryContext.Provider>
     </CalculatorContext.Provider>
   )
 }
 
-
 /**
- * Context 사용해보기
+ * Context 사용
  * 1. Context 생성하기
  *    - createContext();
  * 2. 데이터가 필요한 컴포넌트에서 context를 사용하기

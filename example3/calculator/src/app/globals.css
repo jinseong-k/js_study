@@ -34,12 +34,30 @@ body {
 .pad {
   display: grid;
   grid-template-columns: 3fr 1fr;
+  grid-template-rows: 1fr 1fr 1fr 1fr 1fr;
+}
+
+.history-pad {
+  display: grid;
+  grid-gap: 5px;
+  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-rows: 1fr;
+  margin: 0px 0px 5px 5px;
+}
+
+.action-pad {
+  display: grid;
+  grid-gap: 5px;
+  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-rows: 1fr;
+  margin: 0px 0px 5px 5px;
 }
 
 .num-pad {
   display: grid;
   grid-gap: 5px;
   grid-template-columns: 1fr 1fr 1fr;
+  grid-template-rows: 1fr 1fr 1fr 1fr 1fr;
   margin: 0px 0px 5px 5px;
 }
 
