@@ -8,16 +8,23 @@ import { ResultContext } from './context/TextContext';
 import { InputContext } from './context/TextContext';
 import { HistoryContext } from './context/HistoryContext';
 import { HandleEqualButtonContext } from './context/FunctionContext';
+import { HandleModalCloseButtonContext } from './context/FunctionContext';
+import { ModalDisplayContexnt } from './context/ModalContext';
 
 const historyPadArray = [
   "clear History",
   "load History",
   "save History"];
+const historyList = {
+  "clear":"clear History",
+  "load":"load History",
+  "save":"save History"
+};
 const actionHistoryArray = [
   "undo", "redo", ""];
 const actionList = {
   "undo":"undo", "redo":"redo"
-}
+};
 const numPadArray = [
   "7", "8", "9",
   "4", "5", "6",
@@ -188,14 +195,19 @@ function HistoryPadPart() {
   function handleHistoryPadEvent(e) {
     const key = e.target.value;
     console.log(key);
-    if (key === "save History") {
-      history.handleSaveHistoryButton();
-    } else if (key === "load History") {
-      history.handleLoadHistoryButton();
-    } else if (key === "clear History") {
-      history.handleClearHistoryButton();
-    } else {
-      console.log("Invalid key");
+    switch (key) {
+      case historyList["save"]:
+        history.handleSaveHistoryButton();
+        break;
+      case historyList["load"]:
+        history.handleLoadHistoryButton();
+        break;
+      case historyList["clear"]:
+        history.handleClearHistoryButton();
+        break;
+      default:
+        console.log("Invalid key");
+        break;
     }
   }
 
@@ -300,12 +312,54 @@ function Panel() {
 export default function Home() {
   const calculator = new Calculator(0);
   const history = new History();
+  const [display, setDisplay] = useState("true");
+
   return (
     <CalculatorContext.Provider value={calculator}>
       <HistoryContext.Provider value={history}>
-        <Panel />
+        <ModalDisplayContexnt.Provider value={{display, setDisplay}}>
+            <Panel />
+            <ModalItem />
+        </ModalDisplayContexnt.Provider>
       </HistoryContext.Provider>
     </CalculatorContext.Provider>
+  )
+}
+
+function ModalItem() {
+  const { display } = useContext(ModalDisplayContexnt);
+  console.log(display);
+  return (
+      <div className="modal-overlay" style={{ display: {display} }}>
+        <ModalElement />
+      </div>
+  );
+}
+
+function ModalElement() {
+  return (
+    <div className="modal-window">
+      <ModalCloseButton />
+      <ModalContents />
+    </div>
+  );
+}
+
+function ModalContents() {
+  return (
+    <div className="modal-contents">
+    </div>
+  );
+}
+
+function ModalCloseButton() {
+  const setDisplay = useContext(HandleModalCloseButtonContext);
+  function handleXButton(e) {
+    console.log("display to none");
+    setDisplay("none");
+  }
+  return (
+    <button onClick={handleXButton}>X</button>
   )
 }
 

@@ -1,3 +1,4 @@
+const STORAGE_KEY = "test";
 export class History {
     _resultHistory;
     _index;
@@ -17,6 +18,7 @@ export class History {
         const storageData = JSON.parse(localStorage.getItem(STORAGE_KEY)) ?? [];
 
         storageData.push(saveData);
+        console.log(saveData);
         localStorage.setItem(STORAGE_KEY, JSON.stringify(storageData));
     }
 
