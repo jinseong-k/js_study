@@ -1,5 +1,5 @@
-import {NUMBERS} from "../const";
 import {useCalculatorContext, useInputContext, useResultContext} from "@/app/hooks";
+import {isEnter, isEqual, isNumber} from "@/app/util";
 
 const opPadArray = ["", "C", "+", "-", "*", "/" ];
 const numPadArray = [
@@ -34,11 +34,12 @@ function NumPadPart() {
     const { input, setInput } = useInputContext();
 
     function handleNumPadEvent(e) {
-        const key = e.target.value;
-        if (NUMBERS.includes(key)) {
+        const {key} = e;
+
+        if (isNumber(e)) {
             if (!input && key === ".") return;
             setInput(input + key);
-        } else if (key === '=' || key === 'Enter') {
+        } else if (isEnter(e) || isEqual(e)) {
             handleEqualButton();
         }
     }

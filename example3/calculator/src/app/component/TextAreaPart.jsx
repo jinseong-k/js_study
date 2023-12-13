@@ -1,5 +1,6 @@
 import {NUMBERS} from "../const";
 import {useCalculatorContext, useInputContext, useResultContext} from "@/app/hooks";
+import {isEnter, isEscape} from "../util";
 
 const OPS = ["+", "-", "*", "/"];
 
@@ -55,9 +56,9 @@ function InputText() {
         if (OPS.includes(key)) {
             handleOps(key);
             setInput('');
-        } else if (key === 'Enter') {
+        } else if (isEnter(e)) {
             handleEqualButton();
-        } else if (key === 'Escape') {
+        } else if (isEscape(e)) {
             handleClearButton();
         }
     }
