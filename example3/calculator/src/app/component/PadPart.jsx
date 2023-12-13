@@ -1,5 +1,6 @@
 import {useContext} from "react";
 import {CalculatorContext, InputContext, ResultContext} from "../context";
+import {NUMBERS} from "@/const";
 
 const opPadArray = ["", "C", "+", "-", "*", "/" ];
 const numPadArray = [
