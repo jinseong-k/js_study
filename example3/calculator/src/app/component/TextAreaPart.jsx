@@ -1,4 +1,4 @@
-import {NUMBERS} from "@/const";
+import {NUMBERS} from "../const";
 import {useCalculatorContext, useInputContext, useResultContext} from "@/app/hooks";
 
 const OPS = ["+", "-", "*", "/"];
