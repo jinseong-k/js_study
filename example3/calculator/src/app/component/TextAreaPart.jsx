@@ -13,13 +13,13 @@ function ResultText() {
 function InputText() {
     const {input, setOp, calc, setInput, clear} = useStoreContext();
 
-    const handleOnChangeEvent = (e) => {
+    const handleChange = (e) => {
         const inputData = e.target.value;
 
         setInput(+inputData);
     }
 
-    function handleKeyDownEvent(e) {
+    function handleKeyDown(e) {
         const {key} = e;
 
         if (isNumber(key)) {
@@ -50,8 +50,8 @@ function InputText() {
     return (
         <input className="inputText"
                type='text'
-               onChange={handleOnChangeEvent}
-               onKeyDown={handleKeyDownEvent}
+               onChange={handleChange}
+               onKeyDown={handleKeyDown}
                value={input ?? 0} />
     )
 }
