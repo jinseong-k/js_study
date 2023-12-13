@@ -9,19 +9,6 @@ const NUM_PAD = [
     "1", "2", "3",
     ".", "0", "="
 ];
-const actionList = {
-    "undo":"undo", "redo":"redo"
-};
-const historyList = {
-    "clear":"clear History",
-    "load":"load History",
-    "save":"save History"
-};
-const historyPadArray = [
-    "clear History",
-    "load History",
-    "save History"
-];
 
 function ButtonPad({item, onClick}) {
     function handleClick() {
@@ -93,78 +80,6 @@ function OpPadPart() {
     )
 }
 
-function HistoryPadPart() {
-    function handleHistoryPadEvent(e) {
-        const key = e.target.value;
-        console.log(key);
-        switch (key) {
-            case historyList["save"]:
-                history.handleSaveHistoryButton();
-                break;
-            case historyList["load"]:
-                history.handleLoadHistoryButton();
-                break;
-            case historyList["clear"]:
-                history.handleClearHistoryButton();
-                break;
-            default:
-                console.log("Invalid key");
-                break;
-        }
-    }
-
-    return (
-        <div className="history-pad">
-            {historyPadArray.map((item) => {
-                return <ButtonPad key={item}
-                                  itemValue={item}
-                                  handleEvent={handleHistoryPadEvent} />;
-            })}
-        </div>
-    );
-}
-
-const actionHistoryArray = ["undo", "redo", ""];
-
-function ActionPadPart() {
-    const {result, setInput, setResult} = useStoreContext();
-    // const calculator = useCalculatorContext();
-
-    function handleActionButton(e) {
-        switch (e.target.value) {
-            case actionList.redo:
-                processRedo();
-                return;
-            case actionList.undo:
-                processUndo();
-                return;
-            default:
-                return;
-        }
-    }
-
-    function processUndo() {
-        setResult(history.undo());
-        calculator.setValue(result);
-        setInput(null);
-    }
-
-    function processRedo() {
-        setResult(history.redo());
-        setInput(null);
-    }
-
-    return (
-        <div className="action-pad">
-            {actionHistoryArray.map((item) => {
-                return <ButtonPad key={item}
-                                  itemValue={item}
-                                  handleEvent={handleActionButton} />;
-            })}
-        </div>
-    );
-}
-
 export function PadPart() {
     return (
         <div className="pad">
@@ -175,3 +90,91 @@ export function PadPart() {
         </div>
     )
 }
+
+// const actionList = {
+//     "undo":"undo", "redo":"redo"
+// };
+// const historyList = {
+//     "clear":"clear History",
+//     "load":"load History",
+//     "save":"save History"
+// };
+// const historyPadArray = [
+//     "clear History",
+//     "load History",
+//     "save History"
+// ];
+//
+//
+// function HistoryPadPart() {
+//     function handleHistoryPadEvent(e) {
+//         const key = e.target.value;
+//         console.log(key);
+//         switch (key) {
+//             case historyList["save"]:
+//                 history.handleSaveHistoryButton();
+//                 break;
+//             case historyList["load"]:
+//                 history.handleLoadHistoryButton();
+//                 break;
+//             case historyList["clear"]:
+//                 history.handleClearHistoryButton();
+//                 break;
+//             default:
+//                 console.log("Invalid key");
+//                 break;
+//         }
+//     }
+//
+//     return (
+//         <div className="history-pad">
+//             {historyPadArray.map((item) => {
+//                 return <ButtonPad key={item}
+//                                   itemValue={item}
+//                                   handleEvent={handleHistoryPadEvent} />;
+//             })}
+//         </div>
+//     );
+// }
+//
+// const actionHistoryArray = ["undo", "redo", ""];
+//
+// function ActionPadPart() {
+//     const {result, setInput, setResult} = useStoreContext();
+//     // const calculator = useCalculatorContext();
+//
+//     function handleActionButton(e) {
+//         switch (e.target.value) {
+//             case actionList.redo:
+//                 processRedo();
+//                 return;
+//             case actionList.undo:
+//                 processUndo();
+//                 return;
+//             default:
+//                 return;
+//         }
+//     }
+//
+//     function processUndo() {
+//         setResult(history.undo());
+//         calculator.setValue(result);
+//         setInput(null);
+//     }
+//
+//     function processRedo() {
+//         setResult(history.redo());
+//         setInput(null);
+//     }
+//
+//     return (
+//         <div className="action-pad">
+//             {actionHistoryArray.map((item) => {
+//                 return <ButtonPad key={item}
+//                                   itemValue={item}
+//                                   handleEvent={handleActionButton} />;
+//             })}
+//         </div>
+//     );
+// }
+
