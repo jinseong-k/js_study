@@ -3,7 +3,7 @@ import {useMemo, useState} from "react";
 import {Calculator} from './Calculator';
 import {History} from './History';
 import {StoreContext} from "./context";
-import {ModalItem, TextAreaPart, PadPart} from "@/app/component/";
+import {TextAreaPart, PadPart} from "./component";
 
 export default function Home() {
     const history = new History();
@@ -47,7 +47,7 @@ export default function Home() {
         <StoreContext.Provider value={store}>
             <TextAreaPart />
             <PadPart />
-            <ModalItem />
+            {/* todo <ModalItem /> */}
         </StoreContext.Provider>
     )
 }
