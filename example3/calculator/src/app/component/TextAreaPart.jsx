@@ -1,6 +1,6 @@
 import {useCallback} from "react";
 import {useStoreContext} from "@/app/hooks";
-import {isEnter, isEscape, isNumber, isOp} from "../util";
+import {isDot, isEnter, isEscape, isNumber, isOp} from "../util";
 
 
 function ResultText() {
@@ -11,17 +11,29 @@ function ResultText() {
     )
 }
 
+const countDot = str => str.match(/\./g).length;
+
+const parseNumber = str => {
+    if (isDot(str.at(-1))) {
+        if (countDot(str) > 1) {
+            return str.slice(0, -1);
+        }
+
+        return str;
+    }
+
+    return `${+str}`;
+};
+
 function InputText() {
     const {input, setOp, calc, setInput, clear} = useStoreContext();
     const handleChange = useCallback((e) => {
-        const inputData = e.target.value;
-
-        setInput(+inputData);
+        setInput(parseNumber(e.target.value));
     }, [setInput]);
     const handleKeyDown = useCallback((e) => {
         const {key} = e;
 
-        if (isNumber(key)) {
+        if (isNumber(key) || isDot(key)) {
             return;
         }
 
