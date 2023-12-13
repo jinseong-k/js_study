@@ -1,6 +1,5 @@
-import {useContext} from "react";
-import {CalculatorContext, InputContext, ResultContext} from "../context";
 import {NUMBERS} from "@/const";
+import {useCalculatorContext, useInputContext, useResultContext} from "@/app/hooks";
 
 const opPadArray = ["", "C", "+", "-", "*", "/" ];
 const numPadArray = [
@@ -32,7 +31,7 @@ function ButtonPad({ itemValue, handleEvent}) {
 }
 
 function NumPadPart() {
-    const { input, setInput } = useContext(InputContext);
+    const { input, setInput } = useInputContext();
 
     function handleNumPadEvent(e) {
         const key = e.target.value;
@@ -58,9 +57,9 @@ function NumPadPart() {
 }
 
 function OpPadPart() {
-    const calculator = useContext(CalculatorContext);
-    const { input, setInput } = useContext(InputContext);
-    const { result, setResult } = useContext(ResultContext);
+    const calculator = useCalculatorContext();
+    const { input, setInput } = useInputContext();
+    const { result, setResult } = useResultContext();
 
     function handleOpPadEvent(e) {
         const op = e.target.value;
@@ -93,8 +92,6 @@ function OpPadPart() {
 }
 
 function HistoryPadPart() {
-    const { setResult } = useContext(ResultContext);
-
     function handleHistoryPadEvent(e) {
         const key = e.target.value;
         console.log(key);
@@ -128,9 +125,9 @@ function HistoryPadPart() {
 const actionHistoryArray = ["undo", "redo", ""];
 
 function ActionPadPart() {
-    const {input, setInput} = useContext(InputContext);
-    const {result, setResult} = useContext(ResultContext);
-    const calculator = useContext(CalculatorContext);
+    const {input, setInput} = useInputContext();
+    const {result, setResult} = useResultContext();
+    const calculator = useCalculatorContext();
 
     function handleActionButton(e) {
         switch (e.target.value) {

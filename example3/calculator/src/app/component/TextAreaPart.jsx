@@ -1,20 +1,19 @@
-import {useContext} from "react";
-import {CalculatorContext, InputContext, ResultContext} from "../context";
 import {NUMBERS} from "@/const";
+import {useCalculatorContext, useInputContext, useResultContext} from "@/app/hooks";
 
 const OPS = ["+", "-", "*", "/"];
 
 function ResultText() {
-    let { result } = useContext(ResultContext);
+    let { result } = useResultContext();
     return (
         <p className="resultText">{result}</p>
     )
 }
 
 function InputText() {
-    const calculator = useContext(CalculatorContext);
-    const { input, setInput } = useContext(InputContext);
-    const { result, setResult } = useContext(ResultContext);
+    const calculator = useCalculatorContext();
+    const { input, setInput } = useInputContext();
+    const { result, setResult } = useResultContext();
 
     const handleOnChangeEvent = (e) => {
         const inputData = e.target.value;
