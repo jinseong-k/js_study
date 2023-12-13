@@ -63,10 +63,11 @@ function OpPadPart() {
 
     function handleOpPadEvent(e) {
         const op = e.target.value;
-        setInput(0);
+        setInput(null);
 
         if (op === "C") {
-            setResult(0);
+            setResult(null)
+
             return;
         }
 
@@ -144,12 +145,12 @@ function ActionPadPart() {
     function processUndo() {
         setResult(history.undo());
         calculator.setValue(result);
-        setInput(0);
+        setInput(null);
     }
 
     function processRedo() {
         setResult(history.redo());
-        setInput(0);
+        setInput(null);
     }
 
     return (
