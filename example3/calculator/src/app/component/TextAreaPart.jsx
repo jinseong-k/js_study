@@ -20,25 +20,27 @@ function InputText() {
     }
 
     function handleKeyDownEvent(e) {
-        if (isNumber(e)) {
+        const {key} = e;
+
+        if (isNumber(key)) {
             return;
         }
 
         e.preventDefault();
 
-        if (isOp(e)) {
-            setOp(e.key);
+        if (isOp(key)) {
+            setOp(key);
 
             return;
         }
 
-        if (isEnter(e)) {
+        if (isEnter(key)) {
             calc();
 
             return;
         }
 
-        if (isEscape(e)) {
+        if (isEscape(key)) {
             clear();
 
             return;

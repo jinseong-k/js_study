@@ -21,7 +21,13 @@ export default function Home() {
                 return;
             }
 
-            store.setResult(Calculator.calculate(result, input, store._op));
+            if (!store._op) {
+                store.setResult(input);
+
+                return;
+            }
+
+            store.setResult(Calculator.calculate(result ?? 0, input, store._op));
         },
         input,
         result,

@@ -1,8 +1,9 @@
-import {useCalculatorContext, useStoreContext} from "@/app/hooks";
-import {isEnter, isEqual, isNumber} from "@/app/util";
+import {useStoreContext} from "../hooks";
+import {isDot, isEqual, isNumber} from "../util";
+import {DOT} from "../const";
 
 const opPadArray = ["", "C", "+", "-", "*", "/" ];
-const numPadArray = [
+const NUM_PAD = [
     "7", "8", "9",
     "4", "5", "6",
     "1", "2", "3",
@@ -22,43 +23,58 @@ const historyPadArray = [
     "save History"
 ];
 
-function ButtonPad({ itemValue, handleEvent}) {
+function ButtonPad({item, onClick}) {
+    function handleClick() {
+        onClick(item);
+    };
+
     return (
-        <button className="item" value={itemValue} onClick={handleEvent}>
-            {itemValue}
+        <button className="item" value={item} onClick={handleClick}>
+            {item}
         </button>
     )
 }
 
 function NumPadPart() {
-    const { input, setInput } = useStoreContext();
+    const { input, setInput, calc } = useStoreContext();
 
-    function handleNumPadEvent(e) {
-        const {key} = e;
+    function handleClick(item) {
+        if (isDot(item)) {
+            // todo fixme
+            setInput(`${+input}${DOT}`);
 
-        if (isNumber(e)) {
-            if (!input && key === ".") return;
-            setInput(input + key);
-        } else if (isEnter(e) || isEqual(e)) {
-            handleEqualButton();
+            return;
+        }
+
+        if (isNumber(item)) {
+            if (input === null) {
+                setInput(item);
+
+                return;
+            }
+
+            setInput(`${input}${item}`);
+
+            return;
+        }
+
+        if (isEqual(item)) {
+            calc();
+
+            return;
         }
     }
 
-    const buttonArray = numPadArray.map((item) => {
-        return <ButtonPad key={item}
-                          itemValue={item}
-                          handleEvent={handleNumPadEvent} />;
-    });
 
     return (
         <div className="num-pad">
-            {buttonArray}
+            {NUM_PAD.map((item) => <ButtonPad key={item} item={item} onClick={handleClick} />)}
         </div>
     )
 }
 
 function OpPadPart() {
-    const calculator = useCalculatorContext();
+    // const calculator = useCalculatorContext();
     const {input, result, setInput, setResult} = useStoreContext();
 
     function handleOpPadEvent(e) {
@@ -127,7 +143,7 @@ const actionHistoryArray = ["undo", "redo", ""];
 
 function ActionPadPart() {
     const {result, setInput, setResult} = useStoreContext();
-    const calculator = useCalculatorContext();
+    // const calculator = useCalculatorContext();
 
     function handleActionButton(e) {
         switch (e.target.value) {
@@ -168,8 +184,8 @@ export function PadPart() {
     return (
         <div className="pad">
             <div>
-                <HistoryPadPart />
-                <ActionPadPart />
+                {/* todo <HistoryPadPart /> */}
+                {/* todo <ActionPadPart /> */}
                 <NumPadPart />
             </div>
             <div>
