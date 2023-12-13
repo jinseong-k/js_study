@@ -4,15 +4,18 @@ import {OP} from "./const";
 
 export class Calculator {
     static calculate(result, input, op) {
+        result = Number(result);
+        input = Number(input);
+
         switch(op) {
             case OP.ADD:
-                return parseFloat(result) + parseFloat(input);
+                return result + input;
             case OP.SUB:
-                return parseFloat(result) - parseFloat(input);
+                return result - input;
             case OP.MUL:
-                return parseFloat(result) * parseFloat(input);
+                return result * input;
             case OP.DIV:
-                return parseFloat(result) / parseFloat(input);
+                return result / input;
         }
     }
 }
