@@ -31,7 +31,7 @@ function ButtonPad({ itemValue, handleEvent}) {
 }
 
 function NumPadPart() {
-    const { input, setInput } = useInputContext();
+    const { input, setInput } = useStoreContext();
 
     function handleNumPadEvent(e) {
         const {key} = e;
