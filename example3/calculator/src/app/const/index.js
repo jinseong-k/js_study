@@ -5,3 +5,5 @@ export const KEY = {
     ESCAPE: "Escape",
     EQUAL: "="
 };
+
+export const OPS = ["+", "-", "*", "/"];
