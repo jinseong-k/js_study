@@ -1,4 +1,4 @@
-import {useCalculatorContext, useStoreContext} from "@/app/hooks";
+import {useStoreContext} from "@/app/hooks";
 import {isEnter, isEscape, isNumber, isOp} from "../util";
 
 
@@ -6,40 +6,17 @@ function ResultText() {
     const {result} = useStoreContext();
 
     return (
-        <p className="resultText">{result}</p>
+        <p className="resultText">{result ?? 0}</p>
     )
 }
 
 function InputText() {
-    const calculator = useCalculatorContext();
-    const {input, result, setInput, setResult} = useStoreContext();
+    const {input, setOp, calc, setInput, clear} = useStoreContext();
 
     const handleOnChangeEvent = (e) => {
         const inputData = e.target.value;
 
-        setInput(inputData);
-    }
-
-    const handleOps = ({key: op}) => {
-        if (input === '') {
-            calculator.curOperator = op;
-            return;
-        }
-        setResult(calculator.calculate(input, op));
-        history.addHistory(result);
-    }
-
-    function handleClearButton() {
-        setInput(0);
-        setResult(0);
-        calculator.clearCalculator();
-    }
-
-    function handleEqualButton() {
-        if (input === "") return;
-        setResult(calculator.calculate(input, "="));
-        history.addHistory(result);
-        setInput(0);
+        setInput(+inputData);
     }
 
     function handleKeyDownEvent(e) {
@@ -50,12 +27,21 @@ function InputText() {
         e.preventDefault();
 
         if (isOp(e)) {
-            handleOps(e);
-            setInput(0);
-        } else if (isEnter(e)) {
-            handleEqualButton();
-        } else if (isEscape(e)) {
-            handleClearButton();
+            setOp(e.key);
+
+            return;
+        }
+
+        if (isEnter(e)) {
+            calc();
+
+            return;
+        }
+
+        if (isEscape(e)) {
+            clear();
+
+            return;
         }
     }
 
@@ -64,7 +50,7 @@ function InputText() {
                type='text'
                onChange={handleOnChangeEvent}
                onKeyDown={handleKeyDownEvent}
-               value={input} />
+               value={input ?? 0} />
     )
 }
 

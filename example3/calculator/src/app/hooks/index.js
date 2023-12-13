@@ -1,6 +1,4 @@
 import {useContext} from "react";
-import {CalculatorContext, StoreContext} from "../context";
-
-export const useCalculatorContext = () => useContext(CalculatorContext);
+import {StoreContext} from "../context";
 
 export const useStoreContext = () => useContext(StoreContext);

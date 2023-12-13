@@ -2,28 +2,46 @@
 import {useMemo, useState} from "react";
 import {Calculator} from './Calculator';
 import {History} from './History';
-import {CalculatorContext, StoreContext} from "./context";
+import {StoreContext} from "./context";
 import {ModalItem, TextAreaPart, PadPart} from "@/app/component/";
 
 export default function Home() {
-    const calculator = new Calculator(0);
     const history = new History();
-    const [result, setResult] = useState(0);
-    const [input, setInput] = useState(0);
+    const [result, setResult] = useState(null);
+    const [input, setInput] = useState(null);
     const store = useMemo(() => ({
+        _op: null,
+        setOp(op) {
+            store.calc();
+
+            store._op = op;
+        },
+        calc() {
+            if (input === null) {
+                return;
+            }
+
+            store.setResult(Calculator.calculate(result, input, store._op));
+        },
         input,
         result,
         setInput,
-        setResult,
+        setResult(value) {
+            setInput(null);
+            setResult(value);
+            history.addHistory(value);
+        },
+        clear() {
+            setInput(null);
+            setResult(null);
+        }
     }), [input, result, setInput, setResult]);
 
     return (
-        <CalculatorContext.Provider value={calculator}>
-            <StoreContext.Provider value={store}>
-                <TextAreaPart />
-                <PadPart />
-                <ModalItem />
-            </StoreContext.Provider>
-        </CalculatorContext.Provider>
+        <StoreContext.Provider value={store}>
+            <TextAreaPart />
+            <PadPart />
+            <ModalItem />
+        </StoreContext.Provider>
     )
 }
