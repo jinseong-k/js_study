@@ -9,25 +9,25 @@ export default function Home() {
     const history = new History();
     const [result, setResult] = useState(null);
     const [input, setInput] = useState(null);
+    const [op, setOp] = useState(null);
     const store = useMemo(() => ({
-        _op: null,
+        op,
         setOp(op) {
             store.calc();
-
-            store._op = op;
+            setOp(op);
         },
         calc() {
             if (input === null) {
                 return;
             }
 
-            if (!store._op) {
+            if (!store.op) {
                 store.setResult(input);
 
                 return;
             }
 
-            store.setResult(Calculator.calculate(result ?? 0, input, store._op));
+            store.setResult(Calculator.calculate(result ?? 0, input, store.op));
         },
         input,
         result,

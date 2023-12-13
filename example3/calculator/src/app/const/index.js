@@ -5,7 +5,8 @@ export const DOT = ".";
 export const KEY = {
     ENTER: "Enter",
     ESCAPE: "Escape",
-    EQUAL: "="
+    EQUAL: "=",
+    CLEAR: "C"
 };
 
 export const OP = {

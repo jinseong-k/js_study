@@ -1,8 +1,8 @@
 import {useStoreContext} from "../hooks";
-import {isDot, isEqual, isNumber} from "../util";
-import {DOT} from "../const";
+import {isClear, isDot, isEqual, isNumber} from "../util";
+import {DOT, OPS} from "../const";
 
-const opPadArray = ["", "C", "+", "-", "*", "/" ];
+const OP_PAD = ["C", ...OPS];
 const NUM_PAD = [
     "7", "8", "9",
     "4", "5", "6",
@@ -74,36 +74,21 @@ function NumPadPart() {
 }
 
 function OpPadPart() {
-    // const calculator = useCalculatorContext();
-    const {input, result, setInput, setResult} = useStoreContext();
+    const {clear, setOp} = useStoreContext();
 
-    function handleOpPadEvent(e) {
-        const op = e.target.value;
-        setInput(null);
-
-        if (op === "C") {
-            setResult(null)
+    function handleClick(item) {
+        if (isClear(item)) {
+            clear();
 
             return;
         }
 
-        if (input === '') {
-            calculator.curOperator = op;
-            return;
-        }
-        setResult(calculator.calculate(input, op));
-        history.addHistory(result);
-    };
-
-    const buttonArray = opPadArray.map((item) => {
-        return <ButtonPad key={item}
-                          itemValue={item}
-                          handleEvent={handleOpPadEvent} />;
-    });
+        setOp(item);
+    }
 
     return (
         <div className="op-pad">
-            {buttonArray}
+            {OP_PAD.map((item) => <ButtonPad key={item} item={item} onClick={handleClick} />)}
         </div>
     )
 }
