@@ -1,4 +1,4 @@
-import {useCalculatorContext, useInputContext, useResultContext} from "@/app/hooks";
+import {useCalculatorContext, useStoreContext} from "@/app/hooks";
 import {isEnter, isEqual, isNumber} from "@/app/util";
 
 const opPadArray = ["", "C", "+", "-", "*", "/" ];
@@ -59,8 +59,7 @@ function NumPadPart() {
 
 function OpPadPart() {
     const calculator = useCalculatorContext();
-    const { input, setInput } = useInputContext();
-    const { result, setResult } = useResultContext();
+    const {input, result, setInput, setResult} = useStoreContext();
 
     function handleOpPadEvent(e) {
         const op = e.target.value;
@@ -126,8 +125,7 @@ function HistoryPadPart() {
 const actionHistoryArray = ["undo", "redo", ""];
 
 function ActionPadPart() {
-    const {input, setInput} = useInputContext();
-    const {result, setResult} = useResultContext();
+    const {result, setInput, setResult} = useStoreContext();
     const calculator = useCalculatorContext();
 
     function handleActionButton(e) {
@@ -146,12 +144,12 @@ function ActionPadPart() {
     function processUndo() {
         setResult(history.undo());
         calculator.setValue(result);
-        setInput("0");
+        setInput(0);
     }
 
     function processRedo() {
         setResult(history.redo());
-        setInput("0");
+        setInput(0);
     }
 
     return (

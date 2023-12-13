@@ -1,10 +1,10 @@
-import {NUMBERS, Ops} from "../const";
-import {useCalculatorContext, useInputContext, useResultContext} from "@/app/hooks";
+import {useCalculatorContext, useStoreContext} from "@/app/hooks";
 import {isEnter, isEscape, isNumber, isOp} from "../util";
 
 
 function ResultText() {
-    let { result } = useResultContext();
+    const {result} = useStoreContext();
+
     return (
         <p className="resultText">{result}</p>
     )
@@ -12,8 +12,7 @@ function ResultText() {
 
 function InputText() {
     const calculator = useCalculatorContext();
-    const { input, setInput } = useInputContext();
-    const { result, setResult } = useResultContext();
+    const {input, result, setInput, setResult} = useStoreContext();
 
     const handleOnChangeEvent = (e) => {
         const inputData = e.target.value;

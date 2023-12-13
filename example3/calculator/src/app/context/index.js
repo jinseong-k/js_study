@@ -1,2 +1,2 @@
 export * from "./CalculatorContext";
-export * from "./TextContext";
+export * from "./StoreContext";
