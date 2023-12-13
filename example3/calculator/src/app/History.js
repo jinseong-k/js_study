@@ -1,12 +1,7 @@
 const STORAGE_KEY = "test";
 export class History {
-    _resultHistory;
-    _index;
-
-    constructor() {
-        this._resultHistory = [];
-        this._index = -1;
-    }
+    _resultHistory = [];
+    _index = -1;
 
     handleLoadHistoryButton() {
         // this._refreshModalItem();
