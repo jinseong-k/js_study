@@ -1,8 +1,7 @@
-import {NUMBERS} from "../const";
+import {NUMBERS, Ops} from "../const";
 import {useCalculatorContext, useInputContext, useResultContext} from "@/app/hooks";
-import {isEnter, isEscape} from "../util";
+import {isEnter, isEscape, isNumber, isOp} from "../util";
 
-const OPS = ["+", "-", "*", "/"];
 
 function ResultText() {
     let { result } = useResultContext();
@@ -22,7 +21,7 @@ function InputText() {
         setInput(inputData);
     }
 
-    const handleOps = (op) => {
+    const handleOps = ({key: op}) => {
         if (input === '') {
             calculator.curOperator = op;
             return;
@@ -45,16 +44,14 @@ function InputText() {
     }
 
     function handleKeyDownEvent(e) {
-        const {key} = e;
-
-        if (NUMBERS.includes(key)) {
+        if (isNumber(e)) {
             return;
         }
 
         e.preventDefault();
 
-        if (OPS.includes(key)) {
-            handleOps(key);
+        if (isOp(e)) {
+            handleOps(e);
             setInput('');
         } else if (isEnter(e)) {
             handleEqualButton();
