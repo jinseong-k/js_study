@@ -40,6 +40,7 @@ export default function Home() {
         clear() {
             setInput(null);
             setResult(null);
+            setOp(null);
         }
     }), [input, result, setInput, setResult]);
 
