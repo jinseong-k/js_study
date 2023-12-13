@@ -63,10 +63,10 @@ function OpPadPart() {
 
     function handleOpPadEvent(e) {
         const op = e.target.value;
-        setInput("");
+        setInput(0);
 
         if (op === "C") {
-            setResult("0");
+            setResult(0);
             return;
         }
 
