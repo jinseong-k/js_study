@@ -1,15 +1,11 @@
 "use client"
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useMemo } from 'react';
 import { Calculator } from './Calculator';
 import { History } from './History';
 import { useContext } from 'react';
 import { CalculatorContext } from './context/CalculatorContext';
 import { ResultContext } from './context/TextContext';
 import { InputContext } from './context/TextContext';
-import { HistoryContext } from './context/HistoryContext';
-import { HandleEqualButtonContext } from './context/FunctionContext';
-import { HandleModalCloseButtonContext } from './context/FunctionContext';
-import { ModalDisplayContexnt } from './context/ModalContext';
 
 const historyPadArray = [
   "clear History",
@@ -48,16 +44,14 @@ function convertToKey(value) {
 function ResultText() {
   let { result } = useContext(ResultContext);
   return (
-    <p className="resultText">{result}</p>
+      <p className="resultText">{result}</p>
   )
 }
 
 function InputText() {
   const calculator = useContext(CalculatorContext);
-  const history = useContext(HistoryContext);
   const { input, setInput } = useContext(InputContext);
   const { result, setResult } = useContext(ResultContext);
-  const handleEqualButton = useContext(HandleEqualButtonContext);
 
   const handleOnChangeEvent = (e) => {
     const inputData = e.target.value;
@@ -100,34 +94,33 @@ function InputText() {
   }
 
   return (
-    <input className="inputText"
-      type='text'
-      onChange={handleOnChangeEvent}
-      onKeyDown={handleKeyDownEvent}
-      value={input} />
+      <input className="inputText"
+             type='text'
+             onChange={handleOnChangeEvent}
+             onKeyDown={handleKeyDownEvent}
+             value={input} />
   )
 }
 
 function TextAreaPart() {
   return (
-    <div className="text-area">
-      <ResultText />
-      <InputText />
-    </div>
+      <div className="text-area">
+        <ResultText />
+        <InputText />
+      </div>
   )
 }
 
 function ButtonPad({ itemValue, handleEvent}) {
   return (
-    <button className="item" value={itemValue} onClick={handleEvent}>
-      {itemValue}
-    </button>
+      <button className="item" value={itemValue} onClick={handleEvent}>
+        {itemValue}
+      </button>
   )
 }
 
 function NumPadPart() {
   const { input, setInput } = useContext(InputContext);
-  const handleEqualButton = useContext(HandleEqualButtonContext);
 
   function handleNumPadEvent(e) {
     const key = e.target.value;
@@ -141,20 +134,19 @@ function NumPadPart() {
 
   const buttonArray = numPadArray.map((item) => {
     return <ButtonPad key={item}
-      itemValue={item}
-      handleEvent={handleNumPadEvent} />;
+                      itemValue={item}
+                      handleEvent={handleNumPadEvent} />;
   });
 
   return (
-    <div className="num-pad">
-      {buttonArray}
-    </div>
+      <div className="num-pad">
+        {buttonArray}
+      </div>
   )
 }
 
 function OpPadPart() {
   const calculator = useContext(CalculatorContext);
-  const history = useContext(HistoryContext);
   const { input, setInput } = useContext(InputContext);
   const { result, setResult } = useContext(ResultContext);
 
@@ -177,19 +169,18 @@ function OpPadPart() {
 
   const buttonArray = opPadArray.map((item) => {
     return <ButtonPad key={item}
-      itemValue={item}
-      handleEvent={handleOpPadEvent} />;
+                      itemValue={item}
+                      handleEvent={handleOpPadEvent} />;
   });
 
   return (
-    <div className="op-pad">
-      {buttonArray}
-    </div>
+      <div className="op-pad">
+        {buttonArray}
+      </div>
   )
 }
 
 function HistoryPadPart() {
-  const history = useContext(HistoryContext);
   const { setResult } = useContext(ResultContext);
 
   function handleHistoryPadEvent(e) {
@@ -212,20 +203,19 @@ function HistoryPadPart() {
   }
 
   return (
-    <div className="history-pad">
-      {historyPadArray.map((item) => {
-        return <ButtonPad key={item}
-          itemValue={item}
-          handleEvent={handleHistoryPadEvent} />;
-      })}
-    </div>
+      <div className="history-pad">
+        {historyPadArray.map((item) => {
+          return <ButtonPad key={item}
+                            itemValue={item}
+                            handleEvent={handleHistoryPadEvent} />;
+        })}
+      </div>
   );
 }
 
 function ActionPadPart() {
   const {input, setInput} = useContext(InputContext);
   const {result, setResult} = useContext(ResultContext);
-  const history = useContext(HistoryContext);
   const calculator = useContext(CalculatorContext);
 
   function handleActionButton(e) {
@@ -253,28 +243,28 @@ function ActionPadPart() {
   }
 
   return (
-    <div className="action-pad">
-      {actionHistoryArray.map((item) => {
-        return <ButtonPad key={item}
-          itemValue={item}
-          handleEvent={handleActionButton} />;
-      })}
-    </div>
+      <div className="action-pad">
+        {actionHistoryArray.map((item) => {
+          return <ButtonPad key={item}
+                            itemValue={item}
+                            handleEvent={handleActionButton} />;
+        })}
+      </div>
   );
 }
 
 function PadPart() {
   return (
-    <div className="pad">
-      <div>
-        <HistoryPadPart />
-        <ActionPadPart />
-        <NumPadPart />
+      <div className="pad">
+        <div>
+          <HistoryPadPart />
+          <ActionPadPart />
+          <NumPadPart />
+        </div>
+        <div>
+          <OpPadPart />
+        </div>
       </div>
-      <div>
-        <OpPadPart />
-      </div>
-    </div>
   )
 }
 
@@ -283,7 +273,6 @@ function Panel() {
   const [input, setInput] = useState("");
 
   const calculator = useContext(CalculatorContext);
-  const history = useContext(HistoryContext);
 
   function handleEqualButton() {
     if (input === "") return;
@@ -296,41 +285,32 @@ function Panel() {
   const inputValue = useMemo(() => ({input, setInput}), [input, setInput]);
 
   return (
-    <div>
-      <HandleEqualButtonContext.Provider value={handleEqualButton}>
+      <div>
         <ResultContext.Provider value={resultValue}>
           <InputContext.Provider value={inputValue}>
             <TextAreaPart />
             <PadPart />
           </InputContext.Provider>
         </ResultContext.Provider>
-      </HandleEqualButtonContext.Provider>
-    </div>
+      </div>
   )
 }
 
 export default function Home() {
   const calculator = new Calculator(0);
   const history = new History();
-  const [display, setDisplay] = useState("true");
 
   return (
-    <CalculatorContext.Provider value={calculator}>
-      <HistoryContext.Provider value={history}>
-        <ModalDisplayContexnt.Provider value={{display, setDisplay}}>
-            <Panel />
-            <ModalItem />
-        </ModalDisplayContexnt.Provider>
-      </HistoryContext.Provider>
-    </CalculatorContext.Provider>
+      <CalculatorContext.Provider value={calculator}>
+        <Panel />
+        <ModalItem />
+      </CalculatorContext.Provider>
   )
 }
 
 function ModalItem() {
-  const { display } = useContext(ModalDisplayContexnt);
-  console.log(display);
   return (
-      <div className="modal-overlay" style={{ display: {display} }}>
+      <div className="modal-overlay">
         <ModalElement />
       </div>
   );
@@ -338,29 +318,17 @@ function ModalItem() {
 
 function ModalElement() {
   return (
-    <div className="modal-window">
-      <ModalCloseButton />
-      <ModalContents />
-    </div>
+      <div className="modal-window">
+        <ModalContents />
+      </div>
   );
 }
 
 function ModalContents() {
   return (
-    <div className="modal-contents">
-    </div>
+      <div className="modal-contents">
+      </div>
   );
-}
-
-function ModalCloseButton() {
-  const setDisplay = useContext(HandleModalCloseButtonContext);
-  function handleXButton(e) {
-    console.log("display to none");
-    setDisplay("none");
-  }
-  return (
-    <button onClick={handleXButton}>X</button>
-  )
 }
 
 /**
