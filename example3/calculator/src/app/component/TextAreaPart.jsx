@@ -1,3 +1,4 @@
+import {useCallback} from "react";
 import {useStoreContext} from "@/app/hooks";
 import {isEnter, isEscape, isNumber, isOp} from "../util";
 
@@ -12,14 +13,12 @@ function ResultText() {
 
 function InputText() {
     const {input, setOp, calc, setInput, clear} = useStoreContext();
-
-    const handleChange = (e) => {
+    const handleChange = useCallback((e) => {
         const inputData = e.target.value;
 
         setInput(+inputData);
-    }
-
-    function handleKeyDown(e) {
+    }, [setInput]);
+    const handleKeyDown = useCallback((e) => {
         const {key} = e;
 
         if (isNumber(key)) {
@@ -45,14 +44,10 @@ function InputText() {
 
             return;
         }
-    }
+    }, [setOp, calc, clear]);
 
     return (
-        <input className="inputText"
-               type='text'
-               onChange={handleChange}
-               onKeyDown={handleKeyDown}
-               value={input ?? 0} />
+        <input className="inputText" type='text' onChange={handleChange} onKeyDown={handleKeyDown} value={input ?? 0} />
     )
 }
 
