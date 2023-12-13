@@ -1,3 +1,4 @@
+import {useCallback} from "react";
 import {useStoreContext} from "../hooks";
 import {isClear, isDot, isEqual, isNumber} from "../util";
 import {DOT, OPS} from "../const";
@@ -11,9 +12,9 @@ const NUM_PAD = [
 ];
 
 function ButtonPad({item, onClick}) {
-    function handleClick() {
+    const handleClick = useCallback(() => {
         onClick(item);
-    };
+    }, [item, onClick]);
 
     return (
         <button className="item" value={item} onClick={handleClick}>
@@ -23,9 +24,8 @@ function ButtonPad({item, onClick}) {
 }
 
 function NumPadPart() {
-    const { input, setInput, calc } = useStoreContext();
-
-    function handleClick(item) {
+    const {input, setInput, calc} = useStoreContext();
+    const handleClick = useCallback((item) => {
         if (isDot(item)) {
             // todo fixme
             setInput(`${+input}${DOT}`);
@@ -50,8 +50,7 @@ function NumPadPart() {
 
             return;
         }
-    }
-
+    }, [input, setInput, calc]);
 
     return (
         <div className="num-pad">
@@ -62,8 +61,7 @@ function NumPadPart() {
 
 function OpPadPart() {
     const {clear, setOp} = useStoreContext();
-
-    function handleClick(item) {
+    const handleClick = useCallback((item) => {
         if (isClear(item)) {
             clear();
 
@@ -71,7 +69,7 @@ function OpPadPart() {
         }
 
         setOp(item);
-    }
+    }, [clear, setOp]);
 
     return (
         <div className="op-pad">
