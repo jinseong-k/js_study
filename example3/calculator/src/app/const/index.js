@@ -8,4 +8,11 @@ export const KEY = {
     EQUAL: "="
 };
 
-export const OPS = ["+", "-", "*", "/"];
+export const OP = {
+    ADD: "+",
+    SUB: "-",
+    MUL: "*",
+    DIV: "/"
+}
+
+export const OPS = Object.values(OP);
