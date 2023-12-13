@@ -11,3 +11,5 @@ export const isNumber = val => NUMBERS.includes(val);
 export const isDot = val => val === DOT;
 
 export const isOp = val => OPS.includes(val);
+
+export const isClear = val => val === KEY.CLEAR;
