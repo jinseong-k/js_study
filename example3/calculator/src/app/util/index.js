@@ -1,11 +1,13 @@
-import {KEY, NUMBERS, OPS} from "../const";
+import {DOT, KEY, NUMBERS, OPS} from "../const";
 
-export const isEnter = e => e.key === KEY.ENTER;
+export const isEnter = val => val === KEY.ENTER;
 
-export const isEscape = e => e.key === KEY.ESCAPE;
+export const isEscape = val => val === KEY.ESCAPE;
 
-export const isEqual = e => e.key === KEY.EQUAL;
+export const isEqual = val => val === KEY.EQUAL;
 
-export const isNumber = e => NUMBERS.includes(e.key);
+export const isNumber = val => NUMBERS.includes(val);
 
-export const isOp = e => OPS.includes(e.key);
+export const isDot = val => val === DOT;
+
+export const isOp = val => OPS.includes(val);
