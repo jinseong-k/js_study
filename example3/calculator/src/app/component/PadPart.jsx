@@ -27,7 +27,10 @@ function NumPadPart() {
     const {input, setInput, calc} = useStoreContext();
     const handleClick = useCallback((item) => {
         if (isDot(item)) {
-            // todo fixme
+            if (input?.includes(DOT)) {
+                return;
+            }
+
             setInput(`${+input}${DOT}`);
 
             return;
