@@ -30,8 +30,8 @@ function InputText() {
     }
 
     function handleClearButton() {
-        setInput('');
-        setResult('');
+        setInput(0);
+        setResult(0);
         calculator.clearCalculator();
     }
 
@@ -39,7 +39,7 @@ function InputText() {
         if (input === "") return;
         setResult(calculator.calculate(input, "="));
         history.addHistory(result);
-        setInput("");
+        setInput(0);
     }
 
     function handleKeyDownEvent(e) {
@@ -51,7 +51,7 @@ function InputText() {
 
         if (isOp(e)) {
             handleOps(e);
-            setInput('');
+            setInput(0);
         } else if (isEnter(e)) {
             handleEqualButton();
         } else if (isEscape(e)) {
