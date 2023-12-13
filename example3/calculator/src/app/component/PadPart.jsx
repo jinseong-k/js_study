@@ -168,14 +168,10 @@ function ActionPadPart() {
 export function PadPart() {
     return (
         <div className="pad">
-            <div>
-                {/* todo <HistoryPadPart /> */}
-                {/* todo <ActionPadPart /> */}
-                <NumPadPart />
-            </div>
-            <div>
-                <OpPadPart />
-            </div>
+            {/* todo <HistoryPadPart /> */}
+            {/* todo <ActionPadPart /> */}
+            <NumPadPart />
+            <OpPadPart />
         </div>
     )
 }
